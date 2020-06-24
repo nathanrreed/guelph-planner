@@ -1,34 +1,64 @@
 // JavaScript Document
 var dataTable = [[],[],[],[],[],[],[],[]];
 var completed = [[],[],[],[],[],[],[],[]];
-var currSem, numSem = 0, add = 0;
+var missing = [];
+var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 
 function updateTable() {
-	for (var x = 0; x < dataTable.length; x++) {
-		for (var y = 0; y < dataTable[0].length; y++) {
+	for (var x = 0; x < (8 + add); x++) {
+		for (var y = 0; y < (5 + overload); y++) {
 			var cell = document.getElementById(getLetter(y) + x);
-			if (dataTable[x][y] != null) {
+			while(cell.firstChild != null){
+				cell.removeChild(cell.firstChild);
+			}
+			if (dataTable[x] != null && dataTable[x][y] != null) {
 				var a = document.createElement('a');
 				var link = document.createTextNode(dataTable[x][y].program + '*' + dataTable[x][y].code);
 				a.appendChild(link);
 				a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].program.toLowerCase() + dataTable[x][y].code + '.shtml';
 				a.setAttribute('target', '_blank');
 				a.setAttribute('rel', 'help');
-				if(cell.firstChild != null){
-					cell.removeChild(cell.firstChild);
-				}
 				cell.appendChild(a);
 				a.style.color = 'black';
 				a.style.textDecoration = "none";
+			}else{
+				cell.appendChild(document.createTextNode('\xa0'));
 			}
 		}
 	}
+	updateMissing();
+}
+
+function wipeTable(){
+	dataTable = [[],[],[],[],[],[],[],[]];
+	completed = [[],[],[],[],[],[],[],[]];
+	updateTable();
+	
+	while(add > 0){
+		var header = document.getElementById('S' + (8 + add));
+		header.remove();
+		for (var y = 0; y < (5 + overload); y++) {
+			var cell = document.getElementById(getLetter(y) + (7 + add));
+			cell.remove();
+		}
+		add--;
+	}
+	currSem = 'aa';
+	numSem = 0;
+	
 }
 
 function importInfo() {
+	if(currSem != 'aa'){ //First run
+		alert("Will Clear Table");
+		wipeTable();
+	}
+	
 	var input = document.getElementById("importField").value;
 	var inputLines = input.split("\n").filter(line => line != "" && line != "\t" && (line.indexOf('*') != -1 || line.indexOf('F') != -1 || line.indexOf('W') != -1 || line.indexOf('S') != -1)).reverse();
 	currSem = inputLines[0];
+	
+	//CHECK FOR FAILED COURSES
 
 	for (var i = 0; i < inputLines.length; i += 2) {
 		getInfo(inputLines[i], inputLines[i + 1], completed);
@@ -38,7 +68,7 @@ function importInfo() {
 	updateTable();
 }
 
-function takenCourse(a, b) {
+function course(a, b) {
 	this.program = a;
 	this.code = b;
 }
@@ -53,7 +83,7 @@ function getInfo(sem, str, array) {
 	var b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);
 	var c = getSemester(sem);
 
-	array[c].push(new takenCourse(a, b));
+	array[c].push(new course(a, b));
 }
 
 
@@ -79,6 +109,7 @@ function addColumn(){
 	var tr = document.getElementById('sem');
 	var td = document.createElement('td');
 	td.appendChild(document.createTextNode('Semester ' + (8 + add)));
+	td.id = 'S' + (8 + add);
 	td.setAttribute("scope", "col");
 	td.style.fontWeight = "900";
 	td.style.textAlign = "center"; 
@@ -175,23 +206,65 @@ function findMajor(){ //TEMP
 
 function addMajor(){
 	var currMajor = findMajor();
-	for(var k = 0; k < currMajor.length; k++){
-		for (var x = 0; x <completed.length; x++) {
-    		for (var y = 0; y < completed[0].length; y++) {
-				if(completed[x][y] != null && currMajor[k].course == (completed[x][y].program + '*' + completed[x][y].code)){
-					x = completed.length + 5;
-					y = completed[0].length + 1;
-				}
-			}
-		}
-		
-		if(x <= completed.length && currMajor[k].course.substring(currMajor[k].course.indexOf('*') + 1, currMajor[k].course.length).length  == 4){
-			getInfo(currMajor[k].sem + add, currMajor[k].course, dataTable);
-		}else if(x <= completed.length){
-			var miss = document.getElementById('missing');
-			miss.innerHTML = miss.innerHTML + '\n' +currMajor[k].course; //SORT AND MAKE LOOK NICE
-		}
-	}
+	
+	missing = currMajor.filter(c => findMiss(c.course, dataTable));
+	missing = missing.filter(c => findElect(c));
 	
 	updateTable();
+}
+
+function findElect(c){
+	if(c.course.substring(c.course.indexOf('*') + 1, c.course.length).length  == 4){
+		getInfo(c.sem + add, c.course, dataTable);
+		return false;
+	}
+	return true;
+}
+
+function findMiss(c, array){
+	for (var x = 0; x < (8 + add); x++) {
+		for (var y = 0; y < (5 + overload); y++) {
+			if (array[x][y] != null && (array[x][y].program + '*' + array[x][y].code) == c) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function sortCourses(a, b){
+	var courseA = a.toLowerCase().substring(0, a.indexOf('*') - 1);
+	var courseB = b.toLowerCase().substring(0, b.indexOf('*') - 1);
+	var codeA = a.substring(a.indexOf('*') + 1, a.length);
+	var codeB = b.substring(b.indexOf('*') + 1, a.length);
+	
+	if(codeA.length == 1){
+		codeA = codeA * 1000;
+	}
+	
+	if(codeB.length == 1){
+		codeB = codeB * 1000;
+	}
+	
+	if (courseA < courseB) {
+		return -1;
+	}else if (courseA > courseB) {
+		return 1;
+	}
+	return codeA - codeB;
+}
+
+function updateMissing(){
+	var miss = document.getElementById('missing');
+	miss.innerHTML = "Missing:";
+	var currMajor = findMajor();
+	var taken, element;
+	
+	if(missing[0] == null){
+		missing = currMajor.filter(c => findMiss(c.course, completed));
+	}
+	
+	missing.sort((a, b) => sortCourses(a.course, b.course));
+	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.course);
+	missing = [];
 }
