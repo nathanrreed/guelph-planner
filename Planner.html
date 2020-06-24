@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+<meta charset="utf-8">
+<style>
+body {
+	font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+	color: black;
+}
+.overlay {
+	position: fixed;
+	height: 100%;
+	width: 100%;
+	left: 0;
+	top: 0;
+	z-index: 2;
+	background-color: #000000;
+	opacity: 0.5;
+	visibility: hidden;
+}
+.split {
+	height: 100%;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	overflow-x: hidden;
+	background-color: #EAf0f6;
+}
+.left {
+	width: 75%;
+	left: 0;
+}
+.menu {
+	position: relative;
+	width: 75%;
+	left: 10%;
+	top: 20%;
+}
+.rightD {
+	width: 25%;
+	top: 10%;
+	right: 0;
+	border: inset;
+}
+.rightU {
+	position: fixed;
+	width: 25%;
+	height: 10%;
+	right: 0%;
+}
+.centered {
+	position: relative;
+	top: 20%;
+	left: 50%;
+	transform: translate(-40%, 0%);
+	//text-align: center;
+}
+#importField {
+	position: fixed;
+	top: 35%;
+	left: 35%;
+	transform: translateX(-50%);
+	transform: translateY(-35%);
+	resize: none;
+	z-index: 4;
+	visibility: hidden;
+}
+#missing{
+	position: relative;
+	width: 79.5%;
+	//height: 50%;
+	background: #EAf0f6;
+	border: inset;
+	resize: none;
+	z-index: 4;
+}
+	#courseSearch{
+		position: relative;
+		transform: scale(1.0, 1.0);
+		width: 100%;
+		height: 3%;
+		font-size: 18px;
+	}
+</style>
+
+<head>
+<title>Planner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<textarea id="importField" rows="20" cols="70" autofocus placeholder="Paste Transcript Here" onKeyUp="checkEnter(event)" readonly></textarea>
+<div class = "overlay" id="overlay"></div>
+<script> //CLICK OFF
+	var element = document.getElementById("overlay");
+	element.onclick = function() {
+		var imp = document.getElementById("importField");
+		element.style.visibility = "hidden";
+		imp.style.visibility = "hidden";
+		imp.setAttribute("readonly", "true");
+	}
+</script>
+<div class = "split left">
+  <div class = "menu">
+    <input type = "button" id="import" onClick="importVis()"  value="Import">
+	 <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate">
+	  <input type = "button" id="Gen" onClick="checkGen()"  value="Generate">
+    <select name = "Major" id = "Major">
+      <option value="select">Select a Major</option>
+      <option value="Computer Science">Computer Science</option>
+    </select>
+    <select name = "Minor" id = "Minor" onChange="multiMinor()">
+      <option value="select">Select a Minor</option>
+      <option value="Neuro Science">Neuro Science</option>
+	  <option value="Psychology">Psychology</option>
+    </select>
+  </div>
+  <div class="centered">
+    <table width="100%" border="1" cellspacing="1" cellpadding="5" style="width:80%">
+      <tbody id="tbody">
+        <tr id="sem">
+          <th scope="col">&nbsp;Semester 1</th>
+          <th scope="col">&nbsp;Semester 2</th>
+          <th scope="col">&nbsp;Semester 3</th>
+          <th scope="col">&nbsp;Semester 4</th>
+          <th scope="col">&nbsp;Semester 5</th>
+          <th scope="col">&nbsp;Semester 6</th>
+          <th scope="col">&nbsp;Semester 7</th>
+          <th scope="col">&nbsp;Semester 8</th>
+        </tr>
+        <tr id="a">
+          <td id="a0">&nbsp;</td>
+          <td id="a1">&nbsp;</td>
+          <td id="a2">&nbsp;</td>
+          <td id="a3">&nbsp;</td>
+          <td id="a4">&nbsp;</td>
+          <td id="a5">&nbsp;</td>
+          <td id="a6">&nbsp;</td>
+          <td id="a7">&nbsp;</td>
+        </tr>
+        <tr id="b">
+          <td id="b0">&nbsp;</td>
+          <td id="b1">&nbsp;</td>
+          <td id="b2">&nbsp;</td>
+          <td id="b3">&nbsp;</td>
+          <td id="b4">&nbsp;</td>
+          <td id="b5">&nbsp;</td>
+          <td id="b6">&nbsp;</td>
+          <td id="b7">&nbsp;</td>
+        </tr>
+        <tr id="c">
+          <td id="c0">&nbsp;</td>
+          <td id="c1">&nbsp;</td>
+          <td id="c2">&nbsp;</td>
+          <td id="c3">&nbsp;</td>
+          <td id="c4">&nbsp;</td>
+          <td id="c5">&nbsp;</td>
+          <td id="c6">&nbsp;</td>
+          <td id="c7">&nbsp;</td>
+        </tr>
+        <tr id="d">
+          <td id="d0">&nbsp;</td>
+          <td id="d1">&nbsp;</td>
+          <td id="d2">&nbsp;</td>
+          <td id="d3">&nbsp;</td>
+          <td id="d4">&nbsp;</td>
+          <td id="d5">&nbsp;</td>
+          <td id="d6">&nbsp;</td>
+          <td id="d7">&nbsp;</td>
+        </tr>
+        <tr id="e">
+          <td id="e0">&nbsp;</td>
+          <td id="e1">&nbsp;</td>
+          <td id="e2">&nbsp;</td>
+          <td id="e3">&nbsp;</td>
+          <td id="e4">&nbsp;</td>
+          <td id="e5">&nbsp;</td>
+          <td id="e6">&nbsp;</td>
+          <td id="e7">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+	  <textarea id="missing" readonly rows="10">Missing:</textarea>
+  </div>
+</div>
+<script src="table.js"></script>
+<div class="split rightU">
+  <h2>Class Picker</h2>
+</div>
+<div class="split rightD">
+	<input type="search" placeholder="WIP Course Look Up" id="courseSearch">
+  <div class="centered">
+    <h2>John Doe</h2>
+    <p>Some text here too.</p>
+  </div>
+</div>
+</body>
+	<footer>
+	<p>Nathan Reed 2020</p>
+	</footer>
+</html>
