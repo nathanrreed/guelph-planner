@@ -1,6 +1,5 @@
 // JavaScript Document
 var dataTable = [[],[],[],[],[],[],[],[]];
-var completed = [[],[],[],[],[],[],[],[]];
 var missing = [];
 var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 
@@ -19,10 +18,18 @@ function updateTable() {
 				a.setAttribute('target', '_blank');
 				a.setAttribute('rel', 'help');
 				cell.appendChild(a);
-				a.style.color = 'black';
+				a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
 				a.style.textDecoration = "none";
+				
+				if(dataTable[x][y].passed == 1){ //CURRENTLY TAKING DENODED
+					cell.style.borderColor = '#003b6f';
+					cell.style.borderWidth = '2px';
+					cell.style.background = 'rgba(195, 209, 221, 0.7)';
+				}else if(dataTable[x][y].passed == 2){ //COMPLETED COURSES DENODED
+					cell.style.background = 'rgba(195, 209, 221, 0.7)';
+				}
 			}else{
-				cell.appendChild(document.createTextNode('\xa0'));
+				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
 		}
 	}
@@ -31,7 +38,6 @@ function updateTable() {
 
 function wipeTable(){
 	dataTable = [[],[],[],[],[],[],[],[]];
-	completed = [[],[],[],[],[],[],[],[]];
 	updateTable();
 	
 	while(add > 0){
@@ -55,22 +61,27 @@ function importInfo() {
 	}
 	
 	var input = document.getElementById("importField").value;
-	var inputLines = input.split("\n").filter(line => line != "" && line != "\t" && (line.indexOf('*') != -1 || line.indexOf('F') != -1 || line.indexOf('W') != -1 || line.indexOf('S') != -1)).reverse();
+	var inputLines = input.split('\n');
+	inputLines = inputLines.filter(line => line != null && line != "" && line != "\t" && line.indexOf('.') == -1 ).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
-	
-	//CHECK FOR FAILED COURSES
 
 	for (var i = 0; i < inputLines.length; i += 2) {
-		getInfo(inputLines[i], inputLines[i + 1], completed);
-		getInfo(inputLines[i], inputLines[i + 1], dataTable);
+		var grade = inputLines[i + 2];
+		if(grade != null && grade.indexOf('*') != -1){
+			getInfo(inputLines[i], inputLines[i + 2], inputLines[i + 1]);
+			i++;
+		}else{
+			getInfo(inputLines[i], inputLines[i + 1], "CURR");
+		}
 	}
 
 	updateTable();
 }
 
-function course(a, b) {
+function course(a, b, p) {
 	this.program = a;
 	this.code = b;
+	this.passed = p;
 }
 
 function major(semester, courseCode){
@@ -78,12 +89,19 @@ function major(semester, courseCode){
 	this.course = courseCode;
 }
 
-function getInfo(sem, str, array) {
+function getInfo(sem, str, grade) {
 	var a = str.substring(0, str.indexOf('*'));
 	var b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);
 	var c = getSemester(sem);
-
-	array[c].push(new course(a, b));
+	var p = 0;
+	
+	if(grade == "CURR"){
+		p = 1;
+	}else if(grade != "" && grade >= 50){ //CHECK FOR FAILED COURSES
+		p = 2;
+	}
+	
+	dataTable[c].push(new course(a, b, p));
 }
 
 
@@ -96,13 +114,12 @@ function getSemester(sem) {
 
 	if(sem.indexOf('S') != -1){
 		add++;
-		completed.push([]);
 		dataTable.push([]);
 		addColumn();
 	}
 	currSem = sem;
 	numSem++;
-	return numSem
+	return numSem;
 }
 
 function addColumn(){
@@ -114,36 +131,26 @@ function addColumn(){
 	td.style.fontWeight = "900";
 	td.style.textAlign = "center"; 
 	tr.appendChild(td);
-	for(var y = 0; y < completed[0].length; y++){
+	for(var y = 0; y < dataTable[0].length; y++){
 		var tr = document.getElementById(getLetter(y));
 		var td = document.createElement('td');
-		td.id = getLetter(y) + (completed.length - 1);
+		td.id = getLetter(y) + (dataTable.length - 1);
 		tr.appendChild(td);
 	}
 }
 
 function addRow(){
 	var tr = document.createElement('tr');
-	tr.id = getLetter(completed.length + 1);
+	tr.id = getLetter(dataTable.length + 1);
 	for(var x = 0; x < (8 + add); x++){
 		var td = document.createElement('td');
-		td.id = getLetter(completed.length) + (8 + add);
+		td.id = getLetter(dataTable.length) + (8 + add);
         td.appendChild(document.createTextNode('\xa0'));
 		tr.appendChild(td);
 	}
 	document.getElementById('tbody').appendChild(tr);
 	
 }
-
-/*function getNextSem(curr){
-	if(curr.indexOf('F') == 0){
-		return 'W' + (parseInt(curr.substring(1,3)) + 1);
-	}else if(curr.indexOf('W')){
-		return 'S' + curr.substring(1,3);
-	}else if(curr.indexOf('S')){
-		return 'F' + curr.substring(1,3);
-	}
-}*/
 
 function getLetter(num) {
 	return String.fromCharCode(97 + num);
@@ -207,7 +214,7 @@ function findMajor(){ //TEMP
 function addMajor(){
 	var currMajor = findMajor();
 	
-	missing = currMajor.filter(c => findMiss(c.course, dataTable));
+	missing = currMajor.filter(c => findMiss(c.course));
 	missing = missing.filter(c => findElect(c));
 	
 	updateTable();
@@ -215,16 +222,16 @@ function addMajor(){
 
 function findElect(c){
 	if(c.course.substring(c.course.indexOf('*') + 1, c.course.length).length  == 4){
-		getInfo(c.sem + add, c.course, dataTable);
+		getInfo(c.sem + add, c.course, "");
 		return false;
 	}
 	return true;
 }
 
-function findMiss(c, array){
+function findMiss(c){
 	for (var x = 0; x < (8 + add); x++) {
 		for (var y = 0; y < (5 + overload); y++) {
-			if (array[x][y] != null && (array[x][y].program + '*' + array[x][y].code) == c) {
+			if (dataTable[x] != null && dataTable[x][y] != null && (dataTable[x][y].program + '*' + dataTable[x][y].code) == c) {
 				return false;
 			}
 		}
@@ -261,7 +268,7 @@ function updateMissing(){
 	var taken, element;
 	
 	if(missing[0] == null){
-		missing = currMajor.filter(c => findMiss(c.course, completed));
+		missing = currMajor.filter(c => findMiss(c.course));
 	}
 	
 	missing.sort((a, b) => sortCourses(a.course, b.course));
