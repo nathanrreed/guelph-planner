@@ -256,7 +256,7 @@ function search(){
 
 function results(c){
 	var search = document.getElementById("courses");
-	search.innerHTML = search.innerHTML + c.code;
+	search.innerHTML = search.innerHTML + c.code + ' ';
 	//console.log(c.code);
 }
 function findMajor(){ //TEMP
