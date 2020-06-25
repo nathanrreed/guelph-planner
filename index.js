@@ -235,7 +235,6 @@ function search(){
 		event.preventDefault();
 		var search = document.getElementById("courses");
 		var list = [];
-		Access-Control-Allow-Origin: https://github.com
 		let requestURL = ('https://github.com/nathanrreed/guelph-planner/blob/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
 		let request = new XMLHttpRequest();
 		request.open('GET', requestURL);
