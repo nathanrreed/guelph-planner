@@ -101,7 +101,12 @@ body {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body>
+<body onLoad="clear()">
+	<script>
+		function clear(){
+			document.getElementById("myInput").value = "";
+		}
+	</script>
 <textarea id="importField" rows="20" cols="70" autofocus placeholder="Paste Transcript Here" onKeyUp="checkEnter(event)" readonly></textarea>
 <div class = "overlay" id="overlay"></div>
 <script> //CLICK OFF
@@ -201,9 +206,10 @@ body {
   <h2>Class Picker</h2>
 </div>
 <div class="split rightD">
-	<input type="search" placeholder="WIP Course Look Up"  onKeyPress="search()" id="courseSearch" >
   <div class="centered">
-    <textarea id="courses" readonly></textarea>
+	<input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a name">
+
+<ul id="searchList"></ul>
   </div>
 </div>
 </body>

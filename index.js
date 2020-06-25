@@ -1,6 +1,7 @@
 // JavaScript Document
 var dataTable = [[],[],[],[],[],[],[],[]];
 var missing = [];
+var list = [];
 var currSem = 'aa', numSem = 0, add = 0, overload = 0, courseCalender = '';
 
 function updateTable() {
@@ -68,7 +69,7 @@ function importInfo() {
 	inputLines = inputLines.filter(line => line != null && line != "" && line != "\t" && line.indexOf('.') == -1 ).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
 	courseCalender = getCalender(currSem);
-
+	loadJSON();
 	for (var i = 0; i < inputLines.length; i += 2) {
 		var grade = inputLines[i + 2];
 		if(grade != null && grade.indexOf('*') != -1){
@@ -236,10 +237,9 @@ function checkGen(){
 	addMajor();
 }
 
-function search(){
+function loadJSON(){
 	if (event.keyCode === 13) {
 		event.preventDefault();
-		var list = [];
 		let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
 		let request = new XMLHttpRequest();
 		request.open('GET', requestURL);
@@ -255,10 +255,64 @@ function search(){
 }
 
 function results(c){
-	var search = document.getElementById("courses");
-	search.innerHTML = search.innerHTML + c.code + ' ';
-	//console.log(c.code);
+	var search = document.getElementById("searchList");
+	var li = document.createElement('li');
+	var a = document.createElement('a');
+	li.appendChild(a);
+	a.id = "#";
+	a.innerText = c.code;
+	search.appendChild(li);
+	li.style.display = "none";
 }
+
+function search() {
+    var input, ul, a, txtValue;
+    input = document.getElementById("myInput");
+    var usrIn = input.value.toUpperCase();
+	
+    ul = document.getElementById("searchList");
+	var array = ul.getElementsByTagName("li");
+	/*for (var i = 0; i < array.length; i++) {
+		a = array[i].getElementsByTagName("a")[0];
+		txtValue = a;
+		countArray[i] = getSorted(narrowSearch(txtValue.toUpperCase(), usrIn), array[i]);
+		countArray[i].arr.style.display = "";
+	}*/
+	
+	var countArray = Array.prototype.slice.call(array);
+	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0].innerText, b.getElementsByTagName("a")[0].innerText, usrIn));
+	//countArray.reverse();
+	for (var i = 0; i < countArray.length; i++) {
+		if (usrIn.includes((countArray[i].getElementsByTagName("a")[0].innerText).substring(0, (countArray[i].getElementsByTagName("a")[0].innerText).indexOf('*')))) {
+			countArray[i].style.display = "";
+		} else {
+			countArray[i].style.display = "none";
+		}
+	}
+}
+
+function narrowSearch(txt, txt2, input){
+	var count = 0, count2 = 0;
+	for(var i = 0; i < txt.length; i++){
+		var a = txt.substring(0, txt.indexOf('*'));
+		var b = txt2.substring(0, txt2.indexOf('*'));
+		
+		if(a.indexOf(input) != -1){
+			count--;
+		}else if(txt.indexOf(input.charAt(i)) != -1){
+			count++;
+		}
+		
+		if(b.indexOf(input) != -1){
+			count--;
+		}else if(txt2.indexOf(input.charAt(i)) != -1){
+			count2++;
+		}
+	}
+	
+	return count - count2;
+}
+
 function findMajor(){ //TEMP
 	var CISmajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3'), new major(6, 'CIS*3'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3'), new major(7, 'CIS*4')]; //Add cis electives
 	return CISmajor;
