@@ -234,8 +234,17 @@ function search(){
 	if (event.keyCode === 13) {
 		event.preventDefault();
 		var search = document.getElementById("courses");
-		
-		var list = jSON.parse();
+		var list = [];
+		Access-Control-Allow-Origin: https://github.com
+		let requestURL = ('https://github.com/nathanrreed/guelph-planner/blob/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
+		let request = new XMLHttpRequest();
+		request.open('GET', requestURL);
+		request.responseType = 'json';
+		request.send();
+		request.onload = function() {
+  			list = request.response;
+			console.log('asdads');
+		}
 		
 		list.forEach(c => search.innerHTML = search.innerHTML + c.code);
 	}
