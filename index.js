@@ -27,6 +27,9 @@ function updateTable() {
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
 				}else if(dataTable[x][y].passed == 2){ //COMPLETED COURSES DENODED
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
+				}else if(dataTable[x][y].passed == -1){ //COMPLETED COURSES DENODED
+					cell.style.background = 'rgba(255, 170, 170, 0.3)';
+					cell.style.borderColor = 'rgba(255, 170, 170, 0.8)';
 				}
 			}else{
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
@@ -94,6 +97,7 @@ function getCalender(currSem){
 		return 'F' + curr.substring(1,3);
 	}
 }*/
+
 function course(a, b, p) {
 	this.program = a;
 	this.code = b;
@@ -123,6 +127,8 @@ function getInfo(sem, str, grade) {
 		p = 1;
 	}else if(grade != "" && grade >= 50){ //CHECK FOR FAILED COURSES
 		p = 2;
+	}else if(grade != "" && grade < 50){ //CHECK FOR FAILED COURSES
+		p = -1;
 	}
 	
 	dataTable[c].push(new course(a, b, p));
@@ -233,22 +239,26 @@ function checkGen(){
 function search(){
 	if (event.keyCode === 13) {
 		event.preventDefault();
-		var search = document.getElementById("courses");
 		var list = [];
-		let requestURL = ('https://github.com/nathanrreed/guelph-planner/blob/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
+		let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
 		let request = new XMLHttpRequest();
 		request.open('GET', requestURL);
 		request.responseType = 'json';
 		request.send();
-		request.onload = function() {
-  			list = request.response;
-			console.log('asdads');
-		}
-		
-		list.forEach(c => search.innerHTML = search.innerHTML + c.code);
-	}
+		request.onreadystatechange = function() {
+			list = request.response;
+			if(list != null){
+				list.forEach(c => results(c));
+			}
+		}		
+	}	
 }
 
+function results(c){
+	var search = document.getElementById("courses");
+	search.innerHTML = search.innerHTML + c.code;
+	//console.log(c.code);
+}
 function findMajor(){ //TEMP
 	var CISmajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3'), new major(6, 'CIS*3'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3'), new major(7, 'CIS*4')]; //Add cis electives
 	return CISmajor;
