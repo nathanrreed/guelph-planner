@@ -240,7 +240,7 @@ function checkGen(){
 function loadJSON(){
 	if (event.keyCode === 13) {
 		event.preventDefault();
-		let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
+		let requestURL = ('/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
 		let request = new XMLHttpRequest();
 		request.open('GET', requestURL);
 		request.responseType = 'json';
