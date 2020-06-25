@@ -1,7 +1,7 @@
 // JavaScript Document
 var dataTable = [[],[],[],[],[],[],[],[]];
 var missing = [];
-var currSem = 'aa', numSem = 0, add = 0, overload = 0;
+var currSem = 'aa', numSem = 0, add = 0, overload = 0, courseCalender = '';
 
 function updateTable() {
 	for (var x = 0; x < (8 + add); x++) {
@@ -64,6 +64,7 @@ function importInfo() {
 	var inputLines = input.split('\n');
 	inputLines = inputLines.filter(line => line != null && line != "" && line != "\t" && line.indexOf('.') == -1 ).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
+	courseCalender = getCalender(currSem);
 
 	for (var i = 0; i < inputLines.length; i += 2) {
 		var grade = inputLines[i + 2];
@@ -78,10 +79,33 @@ function importInfo() {
 	updateTable();
 }
 
+function getCalender(currSem){
+	var year = parseInt(currSem.substring(1,3));
+	
+	return '20' + year + '-20' + (year + 1);
+}
+
+/*function getNextSem(curr){
+	if(curr.indexOf('F') == 0){
+		return 'W' + (parseInt(curr.substring(1,3)) + 1);
+	}else if(curr.indexOf('W')){
+		return 'S' + curr.substring(1,3);
+	}else if(curr.indexOf('S')){
+		return 'F' + curr.substring(1,3);
+	}
+}*/
 function course(a, b, p) {
 	this.program = a;
 	this.code = b;
 	this.passed = p;
+}
+
+function courseList(a, b){
+	this.code = a;
+	this.sem = b;
+	
+	this.required;
+	this.restricted;
 }
 
 function major(semester, courseCode){
@@ -204,6 +228,17 @@ function checkGen(){
 	}
 	
 	addMajor();
+}
+
+function search(){
+	if (event.keyCode === 13) {
+		event.preventDefault();
+		var search = document.getElementById("courses");
+		
+		var list = jSON.parse();
+		
+		list.forEach(c => search.innerHTML = search.innerHTML + c.code);
+	}
 }
 
 function findMajor(){ //TEMP
