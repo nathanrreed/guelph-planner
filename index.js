@@ -260,7 +260,8 @@ function results(c){
 	var a = document.createElement('a');
 	li.appendChild(a);
 	a.id = "#";
-	a.innerText = c.code;
+	a.innerText = c.code + ' ' + c.name;
+	a.
 	search.appendChild(li);
 	li.style.display = "none";
 }
@@ -280,10 +281,10 @@ function search() {
 	}*/
 	
 	var countArray = Array.prototype.slice.call(array);
-	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0].innerText, b.getElementsByTagName("a")[0].innerText, usrIn));
+	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	//countArray.reverse();
 	for (var i = 0; i < countArray.length; i++) {
-		if (usrIn.includes((countArray[i].getElementsByTagName("a")[0].innerText).substring(0, (countArray[i].getElementsByTagName("a")[0].innerText).indexOf('*')))) {
+		if (usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))) {
 			countArray[i].style.display = "";
 		} else {
 			countArray[i].style.display = "none";
@@ -291,11 +292,24 @@ function search() {
 	}
 }
 
-function narrowSearch(txt, txt2, input){
+function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 	var count = 0, count2 = 0;
 	for(var i = 0; i < txt.length; i++){
 		var a = txt.substring(0, txt.indexOf('*'));
 		var b = txt2.substring(0, txt2.indexOf('*'));
+		
+		
+		//CHECK COURSE CODE
+		var code = input.replace(/[^0-9/]/g, '');
+		
+		
+		
+		var letters = input.replace(/[^a-z/]/ig, '');
+		//CHECK PROGRAM ID
+		
+		
+		//CHECK COURSE NAME
+		
 		
 		if(a.indexOf(input) != -1){
 			count--;
