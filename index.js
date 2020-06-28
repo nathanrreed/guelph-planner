@@ -94,7 +94,7 @@ function getCalender(currSem){
 	return '20' + year + '-20' + (year + 1);
 }
 
-function findNextSem(c){ //REQUIREMENTS!!
+function findNextSem(c){
 	var num = 0, curr = c.sem;
 	
 	while(currSem.indexOf(curr) == -1 || num == 0){
@@ -160,7 +160,6 @@ function getInfo(sem, str, grade) {
 		  	}
 		}
 	}
-	console.log(c);
 	var p = 0;
 	
 	if(grade == "CURR"){

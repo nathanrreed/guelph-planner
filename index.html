@@ -1,7 +1,6 @@
 <!doctype html>
 
 <html>
-    Header Access-Control-Allow-Origin: https://github.com
 
 <meta charset="utf-8">
 <style>
@@ -76,7 +75,7 @@ body {
 	resize: none;
 	z-index: 4;
 }
-#courseSearch{
+#myInput{
 	position: relative;
 	transform: scale(1.0, 1.0);
 	width: 100%;
@@ -99,7 +98,7 @@ body {
 <head>
 <title>Planner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" href="favicon.ico">
+<link rel="shortcut icon" href="/favicon.ico">
 </head>
 
 <body onLoad="clear()">
@@ -122,8 +121,8 @@ body {
 <div class = "split left">
   <div class = "menu">
     <input type = "button" id="import" onClick="importVis()"  value="Import">
-	 <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate">
-	  <input type = "button" id="Gen" onClick="checkGen()"  value="Generate">
+	 <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate" title="Calculate your Percentage Complete">
+	  <input type = "button" id="Gen" onClick="checkGen()"  value="Generate" title="Make a Basic Schedule">
     <select name = "Major" id = "Major">
       <option value="select">Select a Major</option>
       <option value="Computer Science">Computer Science</option>
@@ -207,11 +206,9 @@ body {
   <h2>Class Picker</h2>
 </div>
 <div class="split rightD">
-  <div class="centered">
-	<input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a name">
+	<input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a course name">
 
 <ul id="searchList"></ul>
-  </div>
 </div>
 </body>
 	<footer>
