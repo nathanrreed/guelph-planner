@@ -13,9 +13,9 @@ function updateTable() {
 			}
 			if (dataTable[x] != null && dataTable[x][y] != null) {
 				var a = document.createElement('a');
-				var link = document.createTextNode(dataTable[x][y].program + '*' + dataTable[x][y].code);
+				var link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
-				a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].program.toLowerCase() + dataTable[x][y].code + '.shtml';
+				a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml';
 				a.setAttribute('target', '_blank');
 				a.setAttribute('rel', 'help');
 				cell.appendChild(a);
@@ -36,6 +36,11 @@ function updateTable() {
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
 		}
+	}
+	
+	for(var i = 1; i <= (8 + add); i++){
+		var sem = document.getElementById('S' + i);
+		sem.innerHTML = 'Semester ' + i + ' F'; //ADD SEMESTER 
 	}
 	updateMissing();
 }
@@ -66,7 +71,7 @@ function importInfo() {
 	
 	var input = document.getElementById("importField").value;
 	var inputLines = input.split('\n');
-	inputLines = inputLines.filter(line => line != null && line != "" && line != "\t" && line.indexOf('.') == -1 ).reverse(); //SEMESTER -> GRADE -> COURSE
+	inputLines = inputLines.filter((line) => (line != null && line != "" && line != "\t" && line.indexOf('.') == -1)).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
 	courseCalender = getCalender(currSem);
 	loadJSON();
@@ -79,7 +84,7 @@ function importInfo() {
 			getInfo(inputLines[i], inputLines[i + 1], "CURR");
 		}
 	}
-
+	currSem = getNextSem(currSem);
 	updateTable();
 }
 
@@ -89,19 +94,36 @@ function getCalender(currSem){
 	return '20' + year + '-20' + (year + 1);
 }
 
-/*function getNextSem(curr){
+function findNextSem(c){ //REQUIREMENTS!!
+	var num = 0, curr = c.sem;
+	
+	while(currSem.indexOf(curr) == -1 || num == 0){
+		if(curr.indexOf('F') != -1){
+			curr = 'W';
+			num++;
+		}else if(curr.indexOf('W') != -1){
+			curr = 'S';
+			num++;
+		}else if(curr.indexOf('S') != -1){
+			curr = 'F';
+			num++;
+		}
+	}
+	return num;
+}
+
+function getNextSem(curr){
 	if(curr.indexOf('F') == 0){
 		return 'W' + (parseInt(curr.substring(1,3)) + 1);
-	}else if(curr.indexOf('W')){
+	}else if(curr.indexOf('W') != -1){
 		return 'S' + curr.substring(1,3);
-	}else if(curr.indexOf('S')){
+	}else if(curr.indexOf('S') != -1){
 		return 'F' + curr.substring(1,3);
 	}
-}*/
+}
 
-function course(a, b, p) {
-	this.program = a;
-	this.code = b;
+function course(c, p) {
+	this.code = c;
 	this.passed = p;
 }
 
@@ -115,13 +137,30 @@ function courseList(a, b){
 
 function major(semester, courseCode){
 	this.sem = semester;
-	this.course = courseCode;
+	this.code = courseCode;
 }
 
 function getInfo(sem, str, grade) {
-	var a = str.substring(0, str.indexOf('*'));
-	var b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);
+	/*var a = str.substring(0, str.indexOf('*'));
+	var b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);*/
+	if(str.indexOf(' ') != -1){
+		str = str.substring(0, str.indexOf(' '));
+	}
+	
 	var c = getSemester(sem);
+	
+	if(dataTable[c].length >= (5 + overload)){
+		c += findNextSem(findList(str)); //NEXT AVAILABLE SEM
+		while(c >= (8 + add)){
+			if (confirm("Not enough space. Would you like to add another semester?")) {
+				addColumn();
+		  	}else {
+				missing.push(findList(str));
+				return 0;
+		  	}
+		}
+	}
+	console.log(c);
 	var p = 0;
 	
 	if(grade == "CURR"){
@@ -132,7 +171,7 @@ function getInfo(sem, str, grade) {
 		p = -1;
 	}
 	
-	dataTable[c].push(new course(a, b, p));
+	dataTable[c].push(new course(str, p));
 }
 
 
@@ -144,8 +183,6 @@ function getSemester(sem) {
 	}
 
 	if(sem.indexOf('S') != -1){
-		add++;
-		dataTable.push([]);
 		addColumn();
 	}
 	currSem = sem;
@@ -154,6 +191,8 @@ function getSemester(sem) {
 }
 
 function addColumn(){
+	dataTable.push([]);
+	add++;
 	var tr = document.getElementById('sem');
 	var td = document.createElement('td');
 	td.appendChild(document.createTextNode('Semester ' + (8 + add)));
@@ -193,7 +232,7 @@ function importVis() { //CLICK BUTTON
 	element.style.visibility = "visible";
 	imp.style.visibility = "visible";
 	imp.removeAttribute("readonly");
-	imp.focus()
+	imp.focus();
 }
 
 function checkEnter(event) { //HIT ENTER
@@ -226,21 +265,10 @@ function checkCalc(){
 	}
 }
 
-function checkGen(){
-	var major = document.getElementById("Major");
-	
-	if(major.value == 'select'){
-		alert("Please select your Major")
-		return -1;
-	}
-	
-	addMajor();
-}
-
 function loadJSON(){
 	if (event.keyCode === 13) {
 		event.preventDefault();
-		let requestURL = ('/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json');
+		let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json'); //MAKE RELATIVE?
 		let request = new XMLHttpRequest();
 		request.open('GET', requestURL);
 		request.responseType = 'json';
@@ -260,10 +288,40 @@ function results(c){
 	var a = document.createElement('a');
 	li.appendChild(a);
 	a.id = "#";
-	a.innerText = c.code + ' ' + c.name;
-	a.
+	a.innerText = c.code; // + ' ' + c.name
+	a.onclick = function() {addCourse(this)};
 	search.appendChild(li);
 	li.style.display = "none";
+}
+
+function addCourse(el){
+	var array = document.getElementById("searchList").getElementsByTagName("li");
+	for (var i = 0; i < array.length; i++) {
+		array[i].style.display = "none"; //REMOVE??
+	}
+	document.getElementById("myInput").value = '';
+	document.getElementById("myInput").focus();
+	addCell(el.innerHTML);
+	//console.log(el.innerHTML);
+}
+
+function findList(id){
+	return list.find(element => element.code == id);
+}
+
+function addCell(id){
+	var info = findList(id);
+	
+	for (var x = numSem + 1; x < (8 + add); x++) {
+		for (var y = 0; y < (5 + overload); y++) {
+			if(dataTable[x][y] == null){//ADD A SEMESTER CHECK
+				dataTable[x][y] = (new course(info.code, 0));
+				
+				updateTable();
+				return 0;
+			}
+		}
+	}
 }
 
 function search() {
@@ -282,9 +340,9 @@ function search() {
 	
 	var countArray = Array.prototype.slice.call(array);
 	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
-	//countArray.reverse();
+	countArray.reverse();
 	for (var i = 0; i < countArray.length; i++) {
-		if (usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))) {
+		if (i < 20) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
 			countArray[i].style.display = "";
 		} else {
 			countArray[i].style.display = "none";
@@ -293,38 +351,52 @@ function search() {
 }
 
 function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
-	var count = 0, count2 = 0;
-	for(var i = 0; i < txt.length; i++){
-		var a = txt.substring(0, txt.indexOf('*'));
-		var b = txt2.substring(0, txt2.indexOf('*'));
-		
-		
-		//CHECK COURSE CODE
-		var code = input.replace(/[^0-9/]/g, '');
-		
-		
-		
-		var letters = input.replace(/[^a-z/]/ig, '');
-		//CHECK PROGRAM ID
-		
-		
-		//CHECK COURSE NAME
-		
-		
-		if(a.indexOf(input) != -1){
-			count--;
-		}else if(txt.indexOf(input.charAt(i)) != -1){
-			count++;
-		}
-		
-		if(b.indexOf(input) != -1){
-			count--;
-		}else if(txt2.indexOf(input.charAt(i)) != -1){
-			count2++;
-		}
+	txt = txt.innerText;
+	txt2 = txt2.innerText;	
+
+	//COURSE CODE
+	var code = input.replace(/[^0-9/]/g, '').padEnd(4, 0);
+	var code1 = txt.replace(/[^0-9/]/g, '');
+	var code2 = txt.replace(/[^0-9/]/g, '');
+	//PROGRAM ID
+	var letters = input.replace(/[^a-z/]/ig, '').padEnd(4, ' ');
+	var a = txt.replace(/[^a-z/]/ig, '');
+	var b = txt2.replace(/[^a-z/]/ig, '');
+	
+
+	if (code1.indexOf(code) != -1 && a.indexOf(letters) != -1) {
+		return 10;
+	}else if (code2.indexOf(code) != -1 && b.indexOf(letters) != -1) {
+		return -10;
+	}else if (code1.indexOf(code) != -1) {
+		return 5;
+	}else if (code2.indexOf(code) != -1) {
+		return -5;
+	}else if(a.indexOf(letters) != -1){
+		 return 1;
+	}else if(b.indexOf(letters) != -1){
+		return -1; 
 	}
 	
-	return count - count2;
+
+	//CHECK COURSE NAME
+
+
+	/*if(a.indexOf(input) != -1){
+		count--;
+	}else if(txt.indexOf(input.charAt(i)) != -1){
+		count++;
+	}
+
+	if(b.indexOf(input) != -1){
+		count--;
+	}else if(txt2.indexOf(input.charAt(i)) != -1){
+		count2++;
+	}
+	}
+	
+	return count - count2;*/
+	return 0;
 }
 
 function findMajor(){ //TEMP
@@ -332,27 +404,38 @@ function findMajor(){ //TEMP
 	return CISmajor;
 }
 
+function checkGen(){
+	var major = document.getElementById("Major");
+	
+	if(major.value == 'select'){
+		alert("Please select your Major")
+		return -1;
+	}
+	
+	addMajor();
+}
+
 function addMajor(){
 	var currMajor = findMajor();
 	
-	missing = currMajor.filter(c => findMiss(c.course));
-	missing = missing.filter(c => findElect(c));
+	missing = currMajor.filter(c => findMiss(c.code));
+	missing = missing.filter(c => findElect(c)); 
 	
 	updateTable();
 }
 
-function findElect(c){
-	if(c.course.substring(c.course.indexOf('*') + 1, c.course.length).length  == 4){
-		getInfo(c.sem + add, c.course, "");
+function findElect(c){ //CHECKS IF THE COURSE CODE IS FULL (not a level)
+	if(c.code.replace(/[^0-9/]/g, '').length == 4){
+		getInfo(c.sem + add, c.code, ""); //ADDS THE COURSE
 		return false;
 	}
 	return true;
 }
 
-function findMiss(c){
+function findMiss(c){ //CHECKS IF A COURSE IS NOT IN THE TABLE
 	for (var x = 0; x < (8 + add); x++) {
 		for (var y = 0; y < (5 + overload); y++) {
-			if (dataTable[x] != null && dataTable[x][y] != null && (dataTable[x][y].program + '*' + dataTable[x][y].code) == c) {
+			if (dataTable[x] != null && dataTable[x][y] != null && (dataTable[x][y].code) == c) {
 				return false;
 			}
 		}
@@ -360,7 +443,7 @@ function findMiss(c){
 	return true;
 }
 
-function sortCourses(a, b){
+function sortMissingCourses(a, b){
 	var courseA = a.toLowerCase().substring(0, a.indexOf('*') - 1);
 	var courseB = b.toLowerCase().substring(0, b.indexOf('*') - 1);
 	var codeA = a.substring(a.indexOf('*') + 1, a.length);
@@ -389,10 +472,10 @@ function updateMissing(){
 	var taken, element;
 	
 	if(missing[0] == null){
-		missing = currMajor.filter(c => findMiss(c.course));
+		missing = currMajor.filter(c => findMiss(c.code));
 	}
 	
-	missing.sort((a, b) => sortCourses(a.course, b.course));
-	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.course);
+	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
+	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.code);
 	missing = [];
 }
