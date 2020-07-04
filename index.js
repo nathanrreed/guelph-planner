@@ -33,15 +33,18 @@ function semester(sem, next){
 }
 
 function updateTable() {
-	for (var x = 0; x < (8 + add); x++) {
-		for (var y = 0; y < (5 + overload); y++) {
-			var cell = document.getElementById(getLetter(y) + x);
+	for (let x = 0; x < (8 + add); x++) {
+		for (let y = 0; y < (5 + overload); y++) {
+			let cell = document.getElementById(getLetter(y) + x);
 			while(cell.firstChild != null){
 				cell.removeChild(cell.firstChild);
+				cell.style.background = '#EAf0f6';
+				cell.style.borderColor = null;
+				cell.style.borderWidth = '1px';
 			}
 			if (dataTable[x] != null && dataTable[x][y] != null) {
-				var a = document.createElement('a');
-				var link = document.createTextNode(dataTable[x][y].code);
+				let a = document.createElement('a');
+				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
 				a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml';
 				a.setAttribute('target', '_blank');
@@ -50,7 +53,7 @@ function updateTable() {
 				a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
 				a.style.textDecoration = "none";
                 
-                var obj = findList(dataTable[x][y].code);
+                let obj = findList(dataTable[x][y].code);
 				if (obj != null && obj.required != null) {
 				    a.title = obj.required; //GET HIGHLIGHTS
 			     }
@@ -61,7 +64,7 @@ function updateTable() {
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
 				}else if(dataTable[x][y].passed == 2){ //COMPLETED COURSES DENODED
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
-				}else if(dataTable[x][y].passed == -1){ //COMPLETED COURSES DENODED
+				}else if(dataTable[x][y].passed == -1){ //FAILED COURSES DENODED
 					cell.style.background = 'rgba(255, 170, 170, 0.3)';
 					cell.style.borderColor = 'rgba(255, 170, 170, 0.8)';
 				}
@@ -73,8 +76,8 @@ function updateTable() {
 	}
 	
     let s = startSem;
-	for(var i = 1; i <= (8 + add); i++){
-		var sem = document.getElementById('S' + i);
+	for(let i = 1; i <= (8 + add); i++){
+		let sem = document.getElementById('S' + i);
         if(i < semesters.length){
            sem.innerHTML = 'Semester ' + i + ' ' + semesters[i].sem; //ADD SEMESTER 
         }else{
@@ -90,10 +93,10 @@ function wipeTable(){
 	updateTable();
 	
 	while(add > 0){
-		var header = document.getElementById('S' + (8 + add));
+		let header = document.getElementById('S' + (8 + add));
 		header.remove();
-		for (var y = 0; y < (5 + overload); y++) {
-			var cell = document.getElementById(getLetter(y) + (7 + add));
+		for (let y = 0; y < (5 + overload); y++) {
+			let cell = document.getElementById(getLetter(y) + (7 + add));
 			cell.remove();
 		}
 		add--;
@@ -104,8 +107,8 @@ function wipeTable(){
 }
 
 function checkEmpty(){
-    for (var x = 0; x < (8 + add); x++) {
-		for (var y = 0; y < (5 + overload); y++) {
+    for (let x = 0; x < (8 + add); x++) {
+		for (let y = 0; y < (5 + overload); y++) {
             if(dataTable[x] != null && dataTable[x][y] != null){
                 return true;
             }
@@ -115,20 +118,23 @@ function checkEmpty(){
 
 function importInfo() {
 	if(currSem != 'aa' || checkEmpty()){ //First run
-		alert("Will Clear Table");
-		wipeTable();
+		if(confirm("Will Clear Table")){
+			wipeTable();
+		}else{
+			return -1;
+		}
 	}
 	
-	var input = document.getElementById("importField").value;
-	var inputLines = input.split('\n');
+	let input = document.getElementById("importField").value;
+	let inputLines = input.split('\n');
 	inputLines = inputLines.filter(line => (line != null && line != "" && line != "\t" && line.indexOf('.') == -1)).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
     semesters[1] = new semester(currSem); //CANT START IN SUMMER?
     
 	//courseCalenderourseCalender = getCalender(currSem);
     
-	for (var i = 0; i < inputLines.length; i += 2) {
-		var grade = inputLines[i + 2];
+	for (let i = 0; i < inputLines.length; i += 2) {
+		let grade = inputLines[i + 2];
 		if(grade != null && grade.indexOf('*') != -1){
 			getInfo(inputLines[i], inputLines[i + 2], inputLines[i + 1]);
 			i++;
@@ -143,14 +149,8 @@ function importInfo() {
     updateTable();
 }
 
-/*function getCalender(currSem){ 
-	var year = parseInt(currSem.substring(1,3));
-	
-	return '20' + year + '-20' + (year + 1);
-}*/
-
 function findNextSem(c){
-	var num = 0, curr = c.sem;
+	let num = 0, curr = c.sem;
 	
 	while(currSem.indexOf(curr) == -1 || num == 0){
 		if(curr.indexOf('F') != -1){
@@ -180,8 +180,8 @@ function getNextSem(curr){
 }
 
 function getInfo(sem, str, grade) {
-	/*var a = str.substring(0, str.indexOf('*'));
-	var b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);*/
+	/*let a = str.substring(0, str.indexOf('*'));
+	let b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);*/
 	if(str.indexOf(' ') != -1){
 		str = str.substring(0, str.indexOf(' '));
 	}
@@ -200,7 +200,7 @@ function getInfo(sem, str, grade) {
 		  	}
 		}
 	}
-	var p = 0;
+	let p = 0;
 	
 	if(grade == "CURR"){
 		p = 1;
@@ -238,27 +238,27 @@ function getSemester(sem) {
 function addColumn(){
 	dataTable.push([]);
 	add++;
-	var tr = document.getElementById('sem');
-	var td = document.createElement('td');
+	let tr = document.getElementById('sem');
+	let td = document.createElement('td');
 	td.appendChild(document.createTextNode('Semester ' + (8 + add)));
 	td.id = 'S' + (8 + add);
 	td.setAttribute("scope", "col");
 	td.style.fontWeight = "900";
 	td.style.textAlign = "center"; 
 	tr.appendChild(td);
-	for(var y = 0; y < dataTable[0].length; y++){
-		var tr = document.getElementById(getLetter(y));
-		var td = document.createElement('td');
+	for(let y = 0; y < dataTable[0].length; y++){
+		let tr = document.getElementById(getLetter(y));
+		let td = document.createElement('td');
 		td.id = getLetter(y) + (dataTable.length - 1);
 		tr.appendChild(td);
 	}
 }
 
 function addRow(){
-	var tr = document.createElement('tr');
+	let tr = document.createElement('tr');
 	tr.id = getLetter(dataTable.length + 1);
-	for(var x = 0; x < (8 + add); x++){
-		var td = document.createElement('td');
+	for(let x = 0; x < (8 + add); x++){
+		let td = document.createElement('td');
 		td.id = getLetter(dataTable.length) + (8 + add);
         td.appendChild(document.createTextNode('\xa0'));
 		tr.appendChild(td);
@@ -268,8 +268,8 @@ function addRow(){
 }
 
 function addCourse(el){
-	var array = document.getElementById("searchList").getElementsByTagName("li");
-	for (var i = 0; i < array.length; i++) {
+	let array = document.getElementById("searchList").getElementsByTagName("li");
+	for (let i = 0; i < array.length; i++) {
 		array[i].style.display = "none"; //REMOVE?? DELETES THE SEARCH
 	}
 	document.getElementById("myInput").value = '';
@@ -290,8 +290,8 @@ function getLetter(num) {
 }
 
 function importVis() { //CLICK BUTTON
-	var element = document.getElementById("overlay");
-	var imp = document.getElementById("importField");
+	let element = document.getElementById("overlay");
+	let imp = document.getElementById("importField");
 	element.style.visibility = "visible";
 	imp.style.visibility = "visible";
 	imp.removeAttribute("readonly");
@@ -301,9 +301,9 @@ function importVis() { //CLICK BUTTON
 function checkEnter(event) { //HIT ENTER
 	if (event.keyCode === 13) {
 		event.preventDefault();
-		var over = document.getElementById("overlay");
+		let over = document.getElementById("overlay");
 		over.style.visibility = "hidden";
-		var imp = document.getElementById("importField");
+		let imp = document.getElementById("importField");
 		imp.style.visibility = "hidden";
 		imp.setAttribute("readonly", "true");
 		importInfo();
@@ -313,15 +313,15 @@ function checkEnter(event) { //HIT ENTER
 function multiMinor() {
 	console.log(document.getElementById("Minor").parentElement.childElementCount);
 	if (document.getElementById("Minor").parentElement.childElementCount < 7) {
-		var itm = document.getElementById("Minor").parentElement;
-		var cln = document.getElementById("Minor").cloneNode(true);
+		let itm = document.getElementById("Minor").parentElement;
+		let cln = document.getElementById("Minor").cloneNode(true);
 		itm.appendChild(cln);
 	}
 }
 
 function checkCalc(){
-	var major = document.getElementById("Major");
-	var minor = document.getElementById("Minor"); //ADD MULTI MINORS
+	let major = document.getElementById("Major");
+	let minor = document.getElementById("Minor"); //ADD MULTI MINORS
 
 	if(major.value == 'select'){
 		alert("Please select your Major")
@@ -344,9 +344,9 @@ function loadJSON(){
 }
 
 function results(c){
-	var search = document.getElementById("searchList");
-	var li = document.createElement('li');
-	var a = document.createElement('a');
+	let search = document.getElementById("searchList");
+	let li = document.createElement('li');
+	let a = document.createElement('a');
 	li.appendChild(a);
 	a.id = "#";
 	a.innerText = c.code; // + ' ' + c.name
@@ -360,12 +360,16 @@ function findList(id){
 }
 
 function addCell(id){
-	var info = findList(id);
+	let info = findList(id);
 	
-	for (var x = numSem; x < (8 + add); x++) {
-		for (var y = 0; y < (5 + overload); y++) {
+	for (let x = numSem; x < (8 + add); x++) {
+		for (let y = 0; y < (5 + overload); y++) {
 			if(dataTable[x][y] == null){//ADD A SEMESTER CHECK
 				dataTable[x][y] = (new course(info.code, 0));
+				
+				if(x == 0){ //CREATE BETTER CHECK FOR CURR SEM!!!
+					dataTable[x][y].passed = 1;
+				}
 				
 				updateTable();
 				return 0;
@@ -375,23 +379,17 @@ function addCell(id){
 }
 
 function search() {
-    var input, ul, a, txtValue;
+    let input, ul, a, txtValue;
     input = document.getElementById("myInput");
-    var usrIn = input.value.toUpperCase();
+    let usrIn = input.value.toUpperCase();
 	
     ul = document.getElementById("searchList");
-	var array = ul.getElementsByTagName("li");
-	/*for (var i = 0; i < array.length; i++) {
-		a = array[i].getElementsByTagName("a")[0];
-		txtValue = a;
-		countArray[i] = getSorted(narrowSearch(txtValue.toUpperCase(), usrIn), array[i]);
-		countArray[i].arr.style.display = "";
-	}*/
+	let array = ul.getElementsByTagName("li");
 	
-	var countArray = Array.prototype.slice.call(array);
+	let countArray = Array.prototype.slice.call(array);
 	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
-	for (var i = 0; i < countArray.length; i++) {
+	for (let i = 0; i < countArray.length; i++) {
 		if (i < 20) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
 			countArray[i].style.display = "";
 		} else {
@@ -405,16 +403,16 @@ function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 	txt2 = txt2.innerText;	
 
 	//COURSE CODE
-	var code = input.replace(/[^0-9/]/g, '').padEnd(4, 0);
-	var code1 = txt.replace(/[^0-9/]/g, '');
-	var code2 = txt.replace(/[^0-9/]/g, '');
+	let code = input.replace(/[^0-9/]/g, '').padEnd(4, 0);
+	let code1 = txt.replace(/[^0-9/]/g, '');
+	let code2 = txt.replace(/[^0-9/]/g, '');
 	//PROGRAM ID
-	var letters = input.replace(/[^a-z/]/ig, '').padEnd(4, ' ');
-	var a = txt.replace(/[^a-z/]/ig, '');
-	var b = txt2.replace(/[^a-z/]/ig, '');
+	let letters = input.replace(/[^a-z/]/ig, '').padEnd(4, ' ');
+	let a = txt.replace(/[^a-z/]/ig, '');
+	let b = txt2.replace(/[^a-z/]/ig, '');
 	
 
-	if (code1.indexOf(code) != -1 && a.indexOf(letters) != -1) {
+	if (code1.indexOf(code) != -1 && a.indexOf(letters) != -1) { //NEEDS A REWORK!!
 		return 10;
 	}else if (code2.indexOf(code) != -1 && b.indexOf(letters) != -1) {
 		return -10;
@@ -430,22 +428,6 @@ function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 	
 
 	//CHECK COURSE NAME
-
-
-	/*if(a.indexOf(input) != -1){
-		count--;
-	}else if(txt.indexOf(input.charAt(i)) != -1){
-		count++;
-	}
-
-	if(b.indexOf(input) != -1){
-		count--;
-	}else if(txt2.indexOf(input.charAt(i)) != -1){
-		count2++;
-	}
-	}
-	
-	return count - count2;*/
 	return 0;
 }
 
@@ -454,7 +436,7 @@ function findMajor(){ //TEMP
 }
 
 function checkGen(){
-	var major = document.getElementById("Major");
+	let major = document.getElementById("Major");
 	
 	if(major.value == 'select'){
 		alert("Please select your Major")
@@ -478,7 +460,7 @@ function findCourseOfLevel(c){
         return true;
     }
     
-    var out = true;
+    let out = true;
 
     dataTable.forEach(dt => dt.forEach(el => {
         let found = currMajor.find(f => f.code == el.code);
@@ -513,8 +495,8 @@ function checkAbove(level){
 }
 
 function findMiss(c){ //CHECKS IF A COURSE IS NOT IN THE TABLE
-	for (var x = 0; x < (8 + add); x++) {
-		for (var y = 0; y < (5 + overload); y++) {
+	for (let x = 0; x < (8 + add); x++) {
+		for (let y = 0; y < (5 + overload); y++) {
 			if (dataTable[x] != null && dataTable[x][y] != null && (dataTable[x][y].code) == c) {
 				return false;
 			}
@@ -524,10 +506,10 @@ function findMiss(c){ //CHECKS IF A COURSE IS NOT IN THE TABLE
 }
 
 function sortMissingCourses(a, b){
-	var courseA = a.toLowerCase().substring(0, a.indexOf('*') - 1);
-	var courseB = b.toLowerCase().substring(0, b.indexOf('*') - 1);
-	var codeA = a.substring(a.indexOf('*') + 1, a.length);
-	var codeB = b.substring(b.indexOf('*') + 1, a.length);
+	let courseA = a.toLowerCase().substring(0, a.indexOf('*') - 1);
+	let courseB = b.toLowerCase().substring(0, b.indexOf('*') - 1);
+	let codeA = a.substring(a.indexOf('*') + 1, a.length);
+	let codeB = b.substring(b.indexOf('*') + 1, a.length);
 	
 	if(codeA.length == 1){
 		codeA = codeA * 1000;
@@ -546,9 +528,9 @@ function sortMissingCourses(a, b){
 }
 
 function updateMissing(){
-	var miss = document.getElementById('missing');
+	let miss = document.getElementById('missing');
 	miss.innerHTML = "Missing:";
-	var taken, element;
+	let taken, element;
 	
 	if(missing[0] == null){
 		missing = currMajor.filter(c => findMiss(c.code));
@@ -559,13 +541,3 @@ function updateMissing(){
 	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.code);
 	missing = [];
 }
-
-/*function courseReq(){ //CHECKS DATATABLE FOR MISSING REQUIREMENTS
-    for (var x = 0; x < (8 + add); x++) {
-		for (var y = 0; y < (5 + overload); y++) {
-			if (dataTable[x] != null && dataTable[x][y] != null && dataTable[x][y].required != null) {
-				document.getElementById(getLetter(y) + x).title = dataTable[x][y].required;
-			}
-		}
-	}
-}*/

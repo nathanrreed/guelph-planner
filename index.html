@@ -31,6 +31,7 @@ body {
 	width: 75%;
 	left: 0;
 }
+
 .menu {
 	position: relative;
 	width: 75%;
@@ -41,6 +42,7 @@ body {
 	width: 25%;
 	top: 10%;
 	right: 0;
+	height: 87%;
 	border: inset;
 }
 .rightU {
@@ -92,7 +94,20 @@ body {
 	//resize: none;
 	z-index: 4;
 }
-	
+
+#footer {
+   position:fixed;
+   left:0px;
+   bottom:0px;
+   height:20px;
+   width:100%;
+   z-index: 3;
+   background: rgba(176,196,222);
+   border: outset;
+   text-align: center;
+   vertical-align: middle;
+}
+
 </style>
 
 <head>
@@ -106,6 +121,7 @@ body {
 		function clear(){
 			document.getElementById("myInput").value = "";
             loadJSON();
+			updateTable();
 		}
 	</script>
 <textarea id="importField" rows="20" cols="70" autofocus placeholder="Paste Transcript Here" onKeyUp="checkEnter(event)" readonly></textarea>
@@ -212,7 +228,7 @@ body {
 <ul id="searchList"></ul>
 </div>
 </body>
-	<footer>
-	<p>Nathan Reed 2020</p>
+	<footer id="footer">
+	Nathan Reed 2020
 	</footer>
 </html>
