@@ -274,8 +274,8 @@ function addCourse(el){
 	}
 	document.getElementById("myInput").value = '';
 	document.getElementById("myInput").focus();
-	addCell(el.innerHTML);
-	//console.log(el.innerHTML);
+	let split = el.innerHTML.split('\u200C');
+	addCell(split[0].trim());
 }
 
 function addMajor(){
@@ -349,7 +349,7 @@ function results(c){
 	let a = document.createElement('a');
 	li.appendChild(a);
 	a.id = "#";
-	a.innerText = c.code; // + ' ' + c.name
+	a.innerText = c.code + ' \u200C' + c.name;
 	a.onclick = function() {addCourse(this)};
 	search.appendChild(li);
 	li.style.display = "none";
@@ -392,7 +392,7 @@ function search() {
 	countArray.reverse();
 	let num = 0;
 	for (let i = 0; i < countArray.length; i++) {
-		if (num < 40 && narrowSearch(countArray[i], usrIn)) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
+		if (num < 40 && narrowSearch(countArray[i], usrIn, true)) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
 			countArray[i].style.display = "";
 			num++;
 		} else {
@@ -401,43 +401,39 @@ function search() {
 	}
 }
 
-function narrowSearch(txt, input){
+function narrowSearch(txt, input, mod){
 	txt = txt.innerText;
-
+	let split = txt.split('\u200C');
+	
 	//COURSE CODE
-	let code = input.replace(/[^0-9/]/g, '');
-	let code1 = txt.replace(/[^0-9/]/g, '');
+	let code = input.replace(/[^0-9]/g, '');
+	let code1 = split[0].replace(/[^0-9]/g, '');
 	//PROGRAM ID
-	let letter = input.replace(/[^a-z/]/ig, '');
-	let course1 = txt.replace(/[^a-z/]/ig, '');
+	let letter = input.replace(/[^a-z]/ig, '');
+	let course1 = split[0].replace(/[^a-z]/ig, '');
 	
 	let letters = course1.includes(letter);
 	let nums = code1.includes(code);
 	
-	if (nums && letters) { //NEEDS A REWORK!!
+	if (nums && letters && letter.length > 0 && code.length > 0) { //NEEDS A REWORK?
 		return true;
-	}else if (nums && letter == '') {
+	}else if (nums && letter.length == 0) {
 		return true;
-	}else if(letters && code == '0000'){
-		 return true;
+	}else if((letters && code.length == 0) || letter === course1){
+		return true;
+	}else if(((mod) || letter.length > course1.length) && split[1].toLowerCase().includes(letter.toLowerCase())){ //CHECK FOR MULTIWORDS!!!
+		return true;
 	}
+	
 	return false;
 }
 
 function sortSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 
-	if (narrowSearch(txt, input) && narrowSearch(txt, input)) { //NEEDS A REWORK!!
-		return 10;
-	}else if (narrowSearch(txt2, input) && narrowSearch(txt2, input)) {
-		return -10;
-	}else if (narrowSearch(txt, input)) {
-		return 5;
-	}else if (narrowSearch(txt2, input)) {
-		return -5;
-	}else if(narrowSearch(txt, input)){
-		 return 1;
-	}else if(narrowSearch(txt2, input)){
-		return -1; 
+	if (narrowSearch(txt, input, false)) { //NEEDS A REWORK!!
+		return 1;
+	}else if (narrowSearch(txt2, input, false)) {
+		return -1;
 	}
 	
 
