@@ -2,7 +2,34 @@
 var dataTable = [[],[],[],[],[],[],[],[]];
 var missing = [];
 var list = [];
-var currSem = 'aa', numSem = 0, add = 0, overload = 0, courseCalender = '';
+var semesters = [];
+var currSem = 'aa', numSem = 0, add = 0, overload = 0;
+
+var startSem = new semester('F20'); //NEEDS TO UPDATE AUTOMATICALLY
+const current = '2019-2020' //FIX!
+
+function course(c, p) {
+	this.code = c;
+	this.passed = p;
+}
+
+function courseList(a, b){
+	this.code = a;
+	this.sem = b;
+	
+	this.required;
+	this.restricted;
+}
+
+function major(semester, courseCode){
+	this.sem = semester;
+	this.code = courseCode;
+}
+
+function semester(sem, next){
+    this.sem = sem;
+    this.next = next;
+}
 
 function updateTable() {
 	for (var x = 0; x < (8 + add); x++) {
@@ -21,7 +48,12 @@ function updateTable() {
 				cell.appendChild(a);
 				a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
 				a.style.textDecoration = "none";
-				
+                
+                var obj = findList(dataTable[x][y].code);
+				if (obj != null && obj.required != null) {
+				    a.title = obj.required; //GET HIGHLIGHTS
+			     }
+                
 				if(dataTable[x][y].passed == 1){ //CURRENTLY TAKING DENODED
 					cell.style.borderColor = '#003b6f';
 					cell.style.borderWidth = '2px';
@@ -32,15 +64,22 @@ function updateTable() {
 					cell.style.background = 'rgba(255, 170, 170, 0.3)';
 					cell.style.borderColor = 'rgba(255, 170, 170, 0.8)';
 				}
+                
 			}else{
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
 		}
 	}
 	
+    let s = startSem;
 	for(var i = 1; i <= (8 + add); i++){
 		var sem = document.getElementById('S' + i);
-		sem.innerHTML = 'Semester ' + i + ' F'; //ADD SEMESTER 
+        if(i < semesters.length){
+           sem.innerHTML = 'Semester ' + i + ' ' + semesters[i].sem; //ADD SEMESTER 
+        }else{
+           sem.innerHTML = 'Semester ' + i + ' ' + s.sem; //ADD SEMESTER 
+           s = new semester(getNextSem(s));
+        }
 	}
 	updateMissing();
 }
@@ -58,23 +97,35 @@ function wipeTable(){
 		}
 		add--;
 	}
+    
 	currSem = 'aa';
 	numSem = 0;
-	
+}
+
+function checkEmpty(){
+    for (var x = 0; x < (8 + add); x++) {
+		for (var y = 0; y < (5 + overload); y++) {
+            if(dataTable[x] != null && dataTable[x][y] != null){
+                return true;
+            }
+        }
+    }
 }
 
 function importInfo() {
-	if(currSem != 'aa'){ //First run
+	if(currSem != 'aa' || checkEmpty()){ //First run
 		alert("Will Clear Table");
 		wipeTable();
 	}
 	
 	var input = document.getElementById("importField").value;
 	var inputLines = input.split('\n');
-	inputLines = inputLines.filter((line) => (line != null && line != "" && line != "\t" && line.indexOf('.') == -1)).reverse(); //SEMESTER -> GRADE -> COURSE
+	inputLines = inputLines.filter(line => (line != null && line != "" && line != "\t" && line.indexOf('.') == -1)).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
-	courseCalender = getCalender(currSem);
-	loadJSON();
+    semesters[1] = new semester(currSem); //CANT START IN SUMMER?
+    
+	//courseCalenderourseCalender = getCalender(currSem);
+    
 	for (var i = 0; i < inputLines.length; i += 2) {
 		var grade = inputLines[i + 2];
 		if(grade != null && grade.indexOf('*') != -1){
@@ -84,15 +135,17 @@ function importInfo() {
 			getInfo(inputLines[i], inputLines[i + 1], "CURR");
 		}
 	}
-	currSem = getNextSem(currSem);
-	updateTable();
+    
+    numSem++;
+    currSem = semesters[semesters.length - 1].sem;
+    updateTable();
 }
 
-function getCalender(currSem){
+/*function getCalender(currSem){ 
 	var year = parseInt(currSem.substring(1,3));
 	
 	return '20' + year + '-20' + (year + 1);
-}
+}*/
 
 function findNextSem(c){
 	var num = 0, curr = c.sem;
@@ -113,31 +166,15 @@ function findNextSem(c){
 }
 
 function getNextSem(curr){
-	if(curr.indexOf('F') == 0){
-		return 'W' + (parseInt(curr.substring(1,3)) + 1);
-	}else if(curr.indexOf('W') != -1){
+	if(curr.sem.indexOf('F') == 0){
+		return 'W' + (parseInt(curr.sem.substring(1,3)) + 1);
+	}else if(curr.sem.indexOf('W') != -1){
+		return 'F' + curr.sem.substring(1,3);
+	}else if(curr.sem.indexOf('W') != -1 && curr.next == null){ //NEEDS SECOND TO CHECK FOR SUMMER
 		return 'S' + curr.substring(1,3);
-	}else if(curr.indexOf('S') != -1){
-		return 'F' + curr.substring(1,3);
+	}else if(curr.sem.indexOf('S') != -1){
+		return 'F' + curr.sem.substring(1,3);
 	}
-}
-
-function course(c, p) {
-	this.code = c;
-	this.passed = p;
-}
-
-function courseList(a, b){
-	this.code = a;
-	this.sem = b;
-	
-	this.required;
-	this.restricted;
-}
-
-function major(semester, courseCode){
-	this.sem = semester;
-	this.code = courseCode;
 }
 
 function getInfo(sem, str, grade) {
@@ -147,7 +184,8 @@ function getInfo(sem, str, grade) {
 		str = str.substring(0, str.indexOf(' '));
 	}
 	
-	var c = getSemester(sem);
+    //SET UP SEMESTER
+	let c = getSemester(sem);
 	
 	if(dataTable[c].length >= (5 + overload)){
 		c += findNextSem(findList(str)); //NEXT AVAILABLE SEM
@@ -173,6 +211,17 @@ function getInfo(sem, str, grade) {
 	dataTable[c].push(new course(str, p));
 }
 
+function nextSemester(sem){
+    let next = null;
+	if(sem.indexOf('S') != -1){
+		addColumn();
+        next = 'S'; 
+	}
+    
+    semesters.push(new semester(sem, next));
+	currSem = sem;
+	numSem++;
+}
 
 function getSemester(sem) {
 	if (sem == currSem) {
@@ -180,12 +229,7 @@ function getSemester(sem) {
 	}else if(Number.isInteger(sem)){
 		return sem;
 	}
-
-	if(sem.indexOf('S') != -1){
-		addColumn();
-	}
-	currSem = sem;
-	numSem++;
+    nextSemester(sem);
 	return numSem;
 }
 
@@ -219,6 +263,26 @@ function addRow(){
 	}
 	document.getElementById('tbody').appendChild(tr);
 	
+}
+
+function addCourse(el){
+	var array = document.getElementById("searchList").getElementsByTagName("li");
+	for (var i = 0; i < array.length; i++) {
+		array[i].style.display = "none"; //REMOVE?? DELETES THE SEARCH
+	}
+	document.getElementById("myInput").value = '';
+	document.getElementById("myInput").focus();
+	addCell(el.innerHTML);
+	//console.log(el.innerHTML);
+}
+
+function addMajor(){
+	var currMajor = findMajor();
+	
+	missing = currMajor.filter(c => findMiss(c.code));
+	missing = missing.filter(c => findElect(c)); 
+	
+	updateTable();
 }
 
 function getLetter(num) {
@@ -265,20 +329,18 @@ function checkCalc(){
 }
 
 function loadJSON(){
-	if (event.keyCode === 13) {
-		event.preventDefault();
-		let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + courseCalender + '%20Undergraduate%20Calendar.json'); //MAKE RELATIVE?
-		let request = new XMLHttpRequest();
-		request.open('GET', requestURL);
-		request.responseType = 'json';
-		request.send();
-		request.onreadystatechange = function() {
-			list = request.response;
-			if(list != null){
-				list.forEach(c => results(c));
-			}
-		}		
-	}	
+    let requestURL = ('https://raw.githubusercontent.com/nathanrreed/guelph-planner/master/courseCalenders/' + current + '%20Undergraduate%20Calendar.json'); //MAKE RELATIVE?
+    let request = new XMLHttpRequest();
+    request.open('GET', requestURL);
+    request.responseType = 'json';
+    request.send();
+    request.onreadystatechange = function() {
+        list = request.response;
+        
+        if(list != null){
+            list.forEach(c => results(c));
+        }
+    }
 }
 
 function results(c){
@@ -293,17 +355,6 @@ function results(c){
 	li.style.display = "none";
 }
 
-function addCourse(el){
-	var array = document.getElementById("searchList").getElementsByTagName("li");
-	for (var i = 0; i < array.length; i++) {
-		array[i].style.display = "none"; //REMOVE??
-	}
-	document.getElementById("myInput").value = '';
-	document.getElementById("myInput").focus();
-	addCell(el.innerHTML);
-	//console.log(el.innerHTML);
-}
-
 function findList(id){
 	return list.find(element => element.code == id);
 }
@@ -311,7 +362,7 @@ function findList(id){
 function addCell(id){
 	var info = findList(id);
 	
-	for (var x = numSem + 1; x < (8 + add); x++) {
+	for (var x = numSem; x < (8 + add); x++) {
 		for (var y = 0; y < (5 + overload); y++) {
 			if(dataTable[x][y] == null){//ADD A SEMESTER CHECK
 				dataTable[x][y] = (new course(info.code, 0));
@@ -414,15 +465,6 @@ function checkGen(){
 	addMajor();
 }
 
-function addMajor(){
-	var currMajor = findMajor();
-	
-	missing = currMajor.filter(c => findMiss(c.code));
-	missing = missing.filter(c => findElect(c)); 
-	
-	updateTable();
-}
-
 function findElect(c){ //CHECKS IF THE COURSE CODE IS FULL (not a level)
 	if(c.code.replace(/[^0-9/]/g, '').length == 4){
 		getInfo(c.sem + add, c.code, ""); //ADDS THE COURSE
@@ -478,3 +520,13 @@ function updateMissing(){
 	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.code);
 	missing = [];
 }
+
+/*function courseReq(){ //CHECKS DATATABLE FOR MISSING REQUIREMENTS
+    for (var x = 0; x < (8 + add); x++) {
+		for (var y = 0; y < (5 + overload); y++) {
+			if (dataTable[x] != null && dataTable[x][y] != null && dataTable[x][y].required != null) {
+				document.getElementById(getLetter(y) + x).title = dataTable[x][y].required;
+			}
+		}
+	}
+}*/
