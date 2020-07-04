@@ -387,42 +387,56 @@ function search() {
 	let array = ul.getElementsByTagName("li");
 	
 	let countArray = Array.prototype.slice.call(array);
-	countArray.sort((a, b) => narrowSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
+	//countArray = countArray.filter(a => narrowSearch(a.getElementsByTagName("a")[0], usrIn));
+	countArray.sort((a, b) => sortSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
+	let num = 0;
 	for (let i = 0; i < countArray.length; i++) {
-		if (i < 20) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
+		if (num < 40 && narrowSearch(countArray[i], usrIn)) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
 			countArray[i].style.display = "";
+			num++;
 		} else {
 			countArray[i].style.display = "none";
 		}
 	}
 }
 
-function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
+function narrowSearch(txt, input){
 	txt = txt.innerText;
-	txt2 = txt2.innerText;	
 
 	//COURSE CODE
-	let code = input.replace(/[^0-9/]/g, '').padEnd(4, 0);
+	let code = input.replace(/[^0-9/]/g, '');
 	let code1 = txt.replace(/[^0-9/]/g, '');
-	let code2 = txt.replace(/[^0-9/]/g, '');
 	//PROGRAM ID
-	let letters = input.replace(/[^a-z/]/ig, '').padEnd(4, ' ');
-	let a = txt.replace(/[^a-z/]/ig, '');
-	let b = txt2.replace(/[^a-z/]/ig, '');
+	let letter = input.replace(/[^a-z/]/ig, '');
+	let course1 = txt.replace(/[^a-z/]/ig, '');
 	
+	let letters = course1.includes(letter);
+	let nums = code1.includes(code);
+	
+	if (nums && letters) { //NEEDS A REWORK!!
+		return true;
+	}else if (nums && letter == '') {
+		return true;
+	}else if(letters && code == '0000'){
+		 return true;
+	}
+	return false;
+}
 
-	if (code1.indexOf(code) != -1 && a.indexOf(letters) != -1) { //NEEDS A REWORK!!
+function sortSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
+
+	if (narrowSearch(txt, input) && narrowSearch(txt, input)) { //NEEDS A REWORK!!
 		return 10;
-	}else if (code2.indexOf(code) != -1 && b.indexOf(letters) != -1) {
+	}else if (narrowSearch(txt2, input) && narrowSearch(txt2, input)) {
 		return -10;
-	}else if (code1.indexOf(code) != -1) {
+	}else if (narrowSearch(txt, input)) {
 		return 5;
-	}else if (code2.indexOf(code) != -1) {
+	}else if (narrowSearch(txt2, input)) {
 		return -5;
-	}else if(a.indexOf(letters) != -1){
+	}else if(narrowSearch(txt, input)){
 		 return 1;
-	}else if(b.indexOf(letters) != -1){
+	}else if(narrowSearch(txt2, input)){
 		return -1; 
 	}
 	
