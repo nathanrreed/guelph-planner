@@ -2,6 +2,7 @@
 var dataTable = [[],[],[],[],[],[],[],[]];
 var missing = [];
 var list = [];
+var currMajor = [];
 var semesters = [];
 var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 
@@ -138,6 +139,7 @@ function importInfo() {
     
     numSem++;
     currSem = semesters[semesters.length - 1].sem;
+    findMajor(); //REMOVE NEEDS TO BE CHECKED
     updateTable();
 }
 
@@ -277,8 +279,6 @@ function addCourse(el){
 }
 
 function addMajor(){
-	var currMajor = findMajor();
-	
 	missing = currMajor.filter(c => findMiss(c.code));
 	missing = missing.filter(c => findElect(c)); 
 	
@@ -450,8 +450,7 @@ function narrowSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 }
 
 function findMajor(){ //TEMP
-	var CISmajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3'), new major(6, 'CIS*3'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3'), new major(7, 'CIS*4')]; //Add cis electives
-	return CISmajor;
+	currMajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3'), new major(6, 'CIS*3'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3'), new major(7, 'CIS*4')]; //Add cis electives
 }
 
 function checkGen(){
@@ -470,7 +469,47 @@ function findElect(c){ //CHECKS IF THE COURSE CODE IS FULL (not a level)
 		getInfo(c.sem + add, c.code, ""); //ADDS THE COURSE
 		return false;
 	}
+    
 	return true;
+}
+
+function findCourseOfLevel(c){
+    if(c.code.replace(/[^0-9/]/g, '').length == 4){
+        return true;
+    }
+    
+    var out = true;
+
+    dataTable.forEach(dt => dt.forEach(el => {
+        let found = currMajor.find(f => f.code == el.code);
+        if(found == null && (el.code.startsWith(c.code) || levelAbove(el.code, c.code))){
+            found = currMajor.findIndex(f => f == c);
+            currMajor[found] = new major(c.sem, el.code);
+            out = false;
+            return false;
+        }
+    }));
+    
+    return out;
+}
+
+function levelAbove(el, c){
+    let level = parseInt(c.replace(/[^0-9/]/g, ''));
+    
+    while(level < 4){
+        level++;
+        if(el.startsWith(c.replace(/[0-9/]/g, level))){
+            return checkAbove(c.replace(/[0-9/]/g, level));
+        }
+    }
+    return false;
+}
+
+function checkAbove(level){
+    if(currMajor.find(f => f.code == level)){
+        return false;   
+    }
+    return true;
 }
 
 function findMiss(c){ //CHECKS IF A COURSE IS NOT IN THE TABLE
@@ -509,11 +548,11 @@ function sortMissingCourses(a, b){
 function updateMissing(){
 	var miss = document.getElementById('missing');
 	miss.innerHTML = "Missing:";
-	var currMajor = findMajor();
 	var taken, element;
 	
 	if(missing[0] == null){
 		missing = currMajor.filter(c => findMiss(c.code));
+        missing = missing.filter(c => findCourseOfLevel(c));
 	}
 	
 	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
