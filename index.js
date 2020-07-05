@@ -5,6 +5,7 @@ var list = [];
 var currMajor = [];
 var semesters = [];
 var currSem = 'aa', numSem = 0, add = 0, overload = 0;
+var remove = false;
 
 var startSem = new semester('F20'); //NEEDS TO UPDATE AUTOMATICALLY
 const current = '2019-2020' //FIX!
@@ -46,12 +47,16 @@ function updateTable() {
 				let a = document.createElement('a');
 				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
-				a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml';
-				a.setAttribute('target', '_blank');
-				a.setAttribute('rel', 'help');
 				cell.appendChild(a);
-				a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
-				a.style.textDecoration = "none";
+				if(!remove){
+					a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml';
+					a.setAttribute('target', '_blank');
+					a.setAttribute('rel', 'help');
+					a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
+					a.style.textDecoration = "none";
+				}else{ //REMOVE MODE
+					cell.onclick = function() {removeCell(this)};
+				}
                 
                 let obj = findList(dataTable[x][y].code);
 				if (obj != null && obj.required != null) {
@@ -312,6 +317,10 @@ function getLetter(num) {
 	return String.fromCharCode(97 + num);
 }
 
+function getNumber(letter){
+	return letter.charCodeAt(0) - 97;
+}
+
 function importVis() { //CLICK BUTTON
 	let element = document.getElementById("overlay");
 	let imp = document.getElementById("importField");
@@ -349,6 +358,16 @@ function checkCalc(){
 	if(major.value == 'select'){
 		alert("Please select your Major")
 	}
+}
+
+function removeMode(){
+	if(remove){
+		remove = false;
+	}else{
+		remove = true;
+	}
+	
+	updateTable();
 }
 
 function loadJSON(){
@@ -401,6 +420,15 @@ function addCell(id){
 				return 0;
 			}
 		}
+	}
+}
+
+function removeCell(cell){
+	let x = cell.id.charAt(1);
+	let y = getNumber(cell.id.charAt(0));
+	if(dataTable[x][y].passed != 2 && dataTable[x][y].passed != -1){ //CHECKS IF THE COURSE IS OVER
+		dataTable[x].splice(y, 1);
+		updateTable();
 	}
 }
 
