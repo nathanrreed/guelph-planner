@@ -100,13 +100,16 @@ function updateSem(){ //SEMESTER HEADER UPDATES
         }
 	}
 	let current = document.getElementById('S' + (numSem + 1));
-	current.style.borderWidth = '2px';
-	current.style.background = 'rgba(252, 230, 230, 0.7)'; //CHANGE COLOUR!!
+	if(current != null){
+		current.style.borderWidth = '2px';
+		current.style.background = 'rgba(252, 230, 230, 0.7)'; //CHANGE COLOUR!!
+	}
 }
 
 function wipeTable(){
 	dataTable = [[],[],[],[],[],[],[],[]];
 	updateTable();
+	updateSem();
 	
 	while(add > 0){
 		let header = document.getElementById('S' + (8 + add));
@@ -133,6 +136,7 @@ function checkEmpty(){
 }
 
 function importInfo() {
+	numSem = 0;
 	if(currSem != 'aa' || checkEmpty()){ //First run
 		if(confirm("Will Clear Table")){
 			wipeTable();
@@ -147,8 +151,6 @@ function importInfo() {
 	currSem = inputLines[0];
     semesters[1] = new semester(currSem); //CANT START IN SUMMER?
     
-	//courseCalenderourseCalender = getCalender(currSem);
-    
 	for (let i = 0; i < inputLines.length; i += 2) {
 		let grade = inputLines[i + 2];
 		if(grade != null && grade.indexOf('*') != -1){
@@ -160,7 +162,7 @@ function importInfo() {
 	}
     
     numSem++;
-    currSem = semesters[semesters.length - 1].sem;
+    currSem = currSem = getNextSem(new semester(semesters[semesters.length - 1].sem));
     findMajor(); //REMOVE NEEDS TO BE CHECKED
     updateTable();
 	updateSem();
@@ -206,9 +208,7 @@ function getNextSem(curr){
 	}
 }
 
-function getInfo(sem, str, grade) {
-	/*let a = str.substring(0, str.indexOf('*'));
-	let b = str.substring(str.indexOf('*') + 1, str.indexOf('*') + 5);*/
+function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 	if(str.indexOf(' ') != -1){
 		str = str.substring(0, str.indexOf(' '));
 	}
@@ -216,8 +216,12 @@ function getInfo(sem, str, grade) {
     //SET UP SEMESTER
 	let c = getSemester(sem);
 	
+	
+	//console.log(c + " " + str);
 	if(dataTable[c].length >= (5 + overload)){
+		//console.log(c);
 		c += findNextSem(findList(str)); //NEXT AVAILABLE SEM
+		//console.log(c);
 		while(c >= (8 + add)){
 			if (confirm("Not enough space. Would you like to add another semester?")) {
 				addColumn();
@@ -311,6 +315,7 @@ function addMajor(){
 	missing = missing.filter(c => findElect(c)); 
 
 	updateTable();
+	updateSem();
 }
 
 function getLetter(num) {
@@ -441,12 +446,11 @@ function search() {
 	let array = ul.getElementsByTagName("li");
 	
 	let countArray = Array.prototype.slice.call(array);
-	//countArray = countArray.filter(a => narrowSearch(a.getElementsByTagName("a")[0], usrIn));
 	countArray.sort((a, b) => sortSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
 	let num = 0;
 	for (let i = 0; i < countArray.length; i++) {
-		if (num < 40 && narrowSearch(countArray[i], usrIn, true)) { //usrIn.includes((countArray[i].getElementsByTagName("a")[0]).substring(0, (countArray[i].getElementsByTagName("a")[0]).indexOf('*')))
+		if (num < 40 && narrowSearch(countArray[i], usrIn, true)) {
 			countArray[i].style.display = "";
 			num++;
 		} else {
@@ -473,9 +477,9 @@ function narrowSearch(txt, input, mod){
 		return true;
 	}else if (nums && letter.length == 0) {
 		return true;
-	}else if((letters && code.length == 0) || letter === course1){
+	}else if((letters && code.length == 0) ){
 		return true;
-	}else if(((mod) || letter.length > course1.length) && split[1].toLowerCase().includes(letter.toLowerCase())){ //CHECK FOR MULTIWORDS!!!
+	}else if(((mod) || letter.length > course1.length) && code.length == 0 && split[1].toLowerCase().includes(letter.toLowerCase())){ //CHECK FOR MULTIWORDS!!!
 		return true;
 	}
 	
@@ -489,9 +493,6 @@ function sortSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 	}else if (narrowSearch(txt2, input, false)) {
 		return -1;
 	}
-	
-
-	//CHECK COURSE NAME
 	return 0;
 }
 
