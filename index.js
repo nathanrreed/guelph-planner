@@ -467,10 +467,10 @@ function narrowSearch(txt, input, mod){
 	let code = input.replace(/[^0-9]/g, '');
 	let code1 = split[0].replace(/[^0-9]/g, '');
 	//PROGRAM ID
-	let letter = input.replace(/[^a-z]/ig, '');
+	let letter = input.replace(/[^a-z ]/ig, '');
 	let course1 = split[0].replace(/[^a-z]/ig, '');
 	
-	let letters = course1.includes(letter);
+	let letters = course1.includes(letter.trim());
 	let nums = code1.includes(code);
 	
 	if (nums && letters && letter.length > 0 && code.length > 0) { //NEEDS A REWORK?
@@ -479,8 +479,18 @@ function narrowSearch(txt, input, mod){
 		return true;
 	}else if((letters && code.length == 0) ){
 		return true;
-	}else if(((mod) || letter.length > course1.length) && code.length == 0 && split[1].toLowerCase().includes(letter.toLowerCase())){ //CHECK FOR MULTIWORDS!!!
-		return true;
+	}else if(((mod) || letter.length > course1.length) && code.length == 0){
+		let inputs = letter.toLowerCase().split(' ');
+		let numFound = 0;
+			for(let i = 0; i < inputs.length; i++){
+				if(split[1].toLowerCase().includes(inputs[i])){
+					numFound++;
+				}
+			}
+		
+		if(numFound > ((inputs.length * 2) / 3)){
+			return true;
+		}
 	}
 	
 	return false;
