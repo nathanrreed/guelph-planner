@@ -75,9 +75,18 @@ function updateTable() {
 		}
 	}
 	
-    let s = startSem;
+	updateMissing();
+}
+
+function updateSem(){ //SEMESTER HEADER UPDATES
+	let s = startSem;
 	for(let i = 1; i <= (8 + add); i++){
 		let sem = document.getElementById('S' + i);
+		sem.style.background = '#EAf0f6';
+		sem.style.borderWidth = '1px';
+		
+		sem.onclick = function() {changeSem(this)};
+		
         if(i < semesters.length){
            sem.innerHTML = 'Semester ' + i + ' ' + semesters[i].sem; //ADD SEMESTER 
         }else{
@@ -85,7 +94,9 @@ function updateTable() {
            s = new semester(getNextSem(s));
         }
 	}
-	updateMissing();
+	let current = document.getElementById('S' + (numSem + 1));
+	current.style.borderWidth = '2px';
+	current.style.background = 'rgba(252, 230, 230, 0.7)'; //CHANGE COLOUR!!
 }
 
 function wipeTable(){
@@ -147,6 +158,17 @@ function importInfo() {
     currSem = semesters[semesters.length - 1].sem;
     findMajor(); //REMOVE NEEDS TO BE CHECKED
     updateTable();
+	updateSem();
+}
+
+function changeSem(sem){
+	let clicked = sem.id.charAt(1) - 1;
+	if(dataTable[clicked].length < (5 + overload)){
+		numSem = clicked;
+		updateSem();
+	}else{
+		//ALERT?? CANT ADD TO FULL SEMESTER
+	}
 }
 
 function findNextSem(c){
@@ -279,9 +301,10 @@ function addCourse(el){
 }
 
 function addMajor(){
+	findMajor();
 	missing = currMajor.filter(c => findMiss(c.code));
 	missing = missing.filter(c => findElect(c)); 
-	
+
 	updateTable();
 }
 
@@ -369,6 +392,9 @@ function addCell(id){
 				
 				if(x == 0){ //CREATE BETTER CHECK FOR CURR SEM!!!
 					dataTable[x][y].passed = 1;
+				}else if(x > numSem){
+					numSem++;
+					updateSem();
 				}
 				
 				updateTable();
