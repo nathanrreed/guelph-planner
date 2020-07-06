@@ -119,6 +119,7 @@
    <body onLoad="clear()">
       <script>
          function clear(){
+		 document.getElementById('courseDetails').src = "";
          	document.getElementById("myInput").value = "";
 			loadJSON();
 			document.getElementById("rem").checked = false;
@@ -159,7 +160,7 @@
 		 <div class = "menu right">
 				<label>Remove</label>
 				<input type = "checkbox" id="rem" onClick= "removeMode()"  value="Remove" title="Click Courses to Remove">
-				<input type="number" id="coursesPer" value="5" max="8" min="1" onChange="changePer()">
+				<input type="number" id="coursesPer" value="5" max="8" min="3" onChange="changePer()">
 		 </div>
          <div class="centered">
             <table width="100%" border="1" cellspacing="1" cellpadding="5" style="width:80%">
@@ -177,6 +178,7 @@
                </tbody>
             </table>
             <textarea id="missing" readonly rows="10">Missing:</textarea>
+			<iframe id="courseDetails" title="Inline Frame Example" width="500" height="200"></iframe>
          </div>
       </div>
       <script src="index.js"></script>

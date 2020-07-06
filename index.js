@@ -54,13 +54,8 @@ function updateTable() {
 				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
 				cell.appendChild(a);
-				if(!remove){
-					a.href = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml';
-					a.setAttribute('target', '_blank');
-					a.setAttribute('rel', 'help');
-					a.style.color = 'black'; //REMOVE LINK COLORING AND UNDERLINE
-					a.style.textDecoration = "none";
-				}else{ //REMOVE MODE
+				cell.onmouseover = function(){document.getElementById('courseDetails').src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml'};
+				if(remove){
 					cell.onclick = function() {removeCell(this)};
 				}
                 
@@ -633,7 +628,7 @@ function updateMissing(){
 function changePer(){
 	let per = document.getElementById('coursesPer').value;
 	let old = overload;
-	if(per > 1 && per < 9){
+	if(per > 2 && per < 9){
 		overload = per - 5;
 		if(overload > old){
 			for(let i = per - 1; i  > old + 4; i--){
