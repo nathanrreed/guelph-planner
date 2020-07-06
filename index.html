@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html>
    <meta charset="utf-8">
@@ -127,7 +125,8 @@
    <body onLoad="clear()">
       <script>
          function clear(){
-		 document.getElementById('courseDetails').src = "";
+			document.cookie = 'same-site-cookie=__utmb; SameSite=Lax';
+			document.getElementById('courseDetails').src = "";
          	document.getElementById("myInput").value = "";
 			loadJSON();
 			document.getElementById("rem").checked = false;

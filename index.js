@@ -54,7 +54,7 @@ function updateTable() {
 				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
 				cell.appendChild(a);
-				cell.onmouseover = function(){document.getElementById('courseDetails').src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + dataTable[x][y].code.replace('*','').toLowerCase() + '.shtml'};
+				cell.onmouseover = function(){changeView(dataTable[x][y].code)};
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
 				}
@@ -453,6 +453,11 @@ function search() {
     ul = document.getElementById("searchList");
 	let array = ul.getElementsByTagName("li");
 	
+	for (let i = 0; i < array.length; i++) {
+		let split = array[i].getElementsByTagName("a")[0].innerText.split('\u200C');
+		array[i].onmouseover = function(){changeView(split[0])};
+	}
+	
 	let countArray = Array.prototype.slice.call(array);
 	countArray.sort((a, b) => sortSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
@@ -465,6 +470,10 @@ function search() {
 			countArray[i].style.display = "none";
 		}
 	}
+}
+
+function changeView(id){
+	document.getElementById('courseDetails').src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
 }
 
 function narrowSearch(txt, input, mod){
