@@ -39,7 +39,7 @@
       position: relative;
       width: 75%;
       left: 10%;
-      top: 20%;
+      top: 15%;
       }
       .rightD {
       width: 25%;
@@ -56,7 +56,7 @@
       }
       .centered {
       position: relative;
-      top: 20%;
+      top: 15%;
       left: 50%;
       transform: translate(-40%, 0%);
       //text-align: center;
@@ -72,14 +72,24 @@
       visibility: hidden;
       }
       #missing{
-      position: relative;
-      width: 79.5%;
-      //height: 50%;
+      position: absolute;
+      width: 39.5%;
+      height:100%;
       background: #EAf0f6;
-      border: inset;
+      border: groove;
       resize: none;
-      z-index: 4;
+      z-index: 3;
       }
+	  #courseDetails{
+	  transform: translateY(1px);
+      position: absolute;
+      width: 39.5%;
+      height:100%;
+	  left: 40%;
+      border: groove;
+      z-index: 1;
+      }
+	  
       #myInput{
       position: relative;
       transform: scale(1.0, 1.0);
@@ -91,10 +101,8 @@
       top: 10%;
       position: absolute;
       width: 80%;
-      //height: 1000%;
       background: #EAf0f6;
       border: inset;
-      //resize: none;
       z-index: 4;
       }
       #footer {
@@ -177,8 +185,8 @@
                   </tr>
                </tbody>
             </table>
-            <textarea id="missing" readonly rows="10">Missing:</textarea>
-			<iframe id="courseDetails" title="Inline Frame Example" width="500" height="200"></iframe>
+            <textarea id="missing" readonly>Missing:</textarea>
+			<iframe id="courseDetails" title="Details"></iframe>
          </div>
       </div>
       <script src="index.js"></script>
