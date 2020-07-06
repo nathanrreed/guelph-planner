@@ -122,6 +122,8 @@
          	document.getElementById("myInput").value = "";
 			loadJSON();
 			document.getElementById("rem").checked = false;
+			document.getElementById('coursesPer').value = 5;
+			setUp();
          	updateTable();
          	updateSem();
          }
@@ -157,6 +159,7 @@
 		 <div class = "menu right">
 				<label>Remove</label>
 				<input type = "checkbox" id="rem" onClick= "removeMode()"  value="Remove" title="Click Courses to Remove">
+				<input type="number" id="coursesPer" value="5" max="8" min="1" onChange="changePer()">
 		 </div>
          <div class="centered">
             <table width="100%" border="1" cellspacing="1" cellpadding="5" style="width:80%">
@@ -170,56 +173,6 @@
                      <th scope="col" id="S6">&nbsp;Semester 6</th>
                      <th scope="col" id="S7">&nbsp;Semester 7</th>
                      <th scope="col" id="S8">&nbsp;Semester 8</th>
-                  </tr>
-                  <tr id="a">
-                     <td id="a0">&nbsp;</td>
-                     <td id="a1">&nbsp;</td>
-                     <td id="a2">&nbsp;</td>
-                     <td id="a3">&nbsp;</td>
-                     <td id="a4">&nbsp;</td>
-                     <td id="a5">&nbsp;</td>
-                     <td id="a6">&nbsp;</td>
-                     <td id="a7">&nbsp;</td>
-                  </tr>
-                  <tr id="b">
-                     <td id="b0">&nbsp;</td>
-                     <td id="b1">&nbsp;</td>
-                     <td id="b2">&nbsp;</td>
-                     <td id="b3">&nbsp;</td>
-                     <td id="b4">&nbsp;</td>
-                     <td id="b5">&nbsp;</td>
-                     <td id="b6">&nbsp;</td>
-                     <td id="b7">&nbsp;</td>
-                  </tr>
-                  <tr id="c">
-                     <td id="c0">&nbsp;</td>
-                     <td id="c1">&nbsp;</td>
-                     <td id="c2">&nbsp;</td>
-                     <td id="c3">&nbsp;</td>
-                     <td id="c4">&nbsp;</td>
-                     <td id="c5">&nbsp;</td>
-                     <td id="c6">&nbsp;</td>
-                     <td id="c7">&nbsp;</td>
-                  </tr>
-                  <tr id="d">
-                     <td id="d0">&nbsp;</td>
-                     <td id="d1">&nbsp;</td>
-                     <td id="d2">&nbsp;</td>
-                     <td id="d3">&nbsp;</td>
-                     <td id="d4">&nbsp;</td>
-                     <td id="d5">&nbsp;</td>
-                     <td id="d6">&nbsp;</td>
-                     <td id="d7">&nbsp;</td>
-                  </tr>
-                  <tr id="e">
-                     <td id="e0">&nbsp;</td>
-                     <td id="e1">&nbsp;</td>
-                     <td id="e2">&nbsp;</td>
-                     <td id="e3">&nbsp;</td>
-                     <td id="e4">&nbsp;</td>
-                     <td id="e5">&nbsp;</td>
-                     <td id="e6">&nbsp;</td>
-                     <td id="e7">&nbsp;</td>
                   </tr>
                </tbody>
             </table>

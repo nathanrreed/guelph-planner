@@ -33,6 +33,12 @@ function semester(sem, next){
     this.next = next;
 }
 
+function setUp(){
+	for(let i = 0; i < 5; i++){
+		addRow(i);
+	}
+}
+
 function updateTable() {
 	for (let x = 0; x < (8 + add); x++) {
 		for (let y = 0; y < (5 + overload); y++) {
@@ -285,17 +291,24 @@ function addColumn(){
 	}
 }
 
-function addRow(){
+function addRow(num){
 	let tr = document.createElement('tr');
-	tr.id = getLetter(dataTable.length + 1);
+	tr.id = getLetter(num);
 	for(let x = 0; x < (8 + add); x++){
 		let td = document.createElement('td');
-		td.id = getLetter(dataTable.length) + (8 + add);
+		td.id = getLetter(num) + x;
         td.appendChild(document.createTextNode('\xa0'));
 		tr.appendChild(td);
 	}
 	document.getElementById('tbody').appendChild(tr);
 	
+}
+
+function removeRow(old){
+	overload++;
+	wipeTable();
+	overload--;
+	document.getElementById('tbody').removeChild(document.getElementById('tbody').lastChild);
 }
 
 function addCourse(el){
@@ -615,4 +628,29 @@ function updateMissing(){
 	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
 	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.code);
 	missing = [];
+}
+
+function changePer(){
+	let per = document.getElementById('coursesPer').value;
+	let old = overload;
+	if(per > 1 && per < 9){
+		overload = per - 5;
+		if(overload > old){
+			for(let i = per - 1; i  > old + 4; i--){
+				addRow(i);
+			}
+		}else{
+			if(confirm("Will Clear Table")){
+				for(let i = per - 1; i  < old + 4; i++){
+						removeRow(old);
+				}
+			}else{
+				overload = old;
+				document.getElementById('coursesPer').value = old + 5;
+			}
+		}
+		updateTable();
+	}else{
+		document.getElementById('coursesPer').value = old + 5;
+	}
 }
