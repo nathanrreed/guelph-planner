@@ -8,7 +8,7 @@ var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 var remove = false;
 
 var startSem = new semester('F20'); //NEEDS TO UPDATE AUTOMATICALLY
-const current = '2019-2020' //FIX!
+const current = '2020-2021' //FIX!
 
 function course(c, p) {
 	this.code = c;
@@ -54,7 +54,8 @@ function updateTable() {
 				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
 				cell.appendChild(a);
-				cell.onmouseover = function(){changeView(dataTable[x][y].code)};
+				cell.onmouseenter = function(){changeView(dataTable[x][y].code)}; //onmouseover??
+				
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
 				}
@@ -134,6 +135,7 @@ function checkEmpty(){
             }
         }
     }
+	return false;
 }
 
 function importInfo() {
@@ -473,7 +475,8 @@ function search() {
 }
 
 function changeView(id){
-	document.getElementById('courseDetails').src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
+	var iframe = document.getElementById('courseDetails');
+	iframe.src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
 }
 
 function narrowSearch(txt, input, mod){
@@ -644,7 +647,7 @@ function changePer(){
 				addRow(i);
 			}
 		}else{
-			if(confirm("Will Clear Table")){
+			if(!checkEmpty() || confirm("Will Clear Table")){
 				for(let i = per - 1; i  < old + 4; i++){
 						removeRow(old);
 				}
