@@ -476,7 +476,7 @@ function search() {
 
 function changeView(id){
 	var iframe = document.getElementById('courseDetails');
-	iframe.srcdoc = "<p>Privacy Badger or other blocker is preventing course details from being displayed</p>";
+	iframe.textContent = "Privacy Badger or other blocker is preventing course details from being displayed";
 	iframe.src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
 }
 
