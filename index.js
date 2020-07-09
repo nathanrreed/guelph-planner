@@ -476,7 +476,7 @@ function search() {
 
 function changeView(id){
 	var iframe = document.getElementById('courseDetails');
-	iframe.src = 'https:=//www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
+	iframe.src = '//www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
 }
 
 function narrowSearch(txt, input, mod){
