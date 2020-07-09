@@ -1,11 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<body>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-172038379-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-<h1>The iframe element</h1>
+  gtag('config', 'UA-172038379-1');
+</script>
 
-<iframe src="https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/phys2180.shtml">
-</iframe>
-
-</body>
+   <meta charset="utf-8">
+   <style>
+      body {
+      font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
+      color: black;
+      }
+      .overlay {
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      z-index: 2;
+      background-color: #000000;
+      opacity: 0.5;
+      visibility: hidden;
+      }
+      .split {
+      height: 100%;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      overflow-x: hidden;
+      background-color: #EAf0f6;
+      }
+      .left {
+      width: 75%;
+      left: 0;
+      }
+	  .right {
+      width: 75%;
+      right: 0;
+      }
+      .menu {
+      position: relative;
+      width: 75%;
+      left: 10%;
+      top: 15%;
+      }
+      .rightD {
+      width: 25%;
+      top: 10%;
+      right: 0;
+      height: 87%;
+      border: inset;
+      }
+      .rightU {
+      position: fixed;
+      width: 25%;
+      height: 10%;
+      right: 0%;
+      }
+      .centered {
+      position: relative;
+      top: 15%;
+      left: 50%;
+      transform: translate(-40%, 0%);
+      //text-align: center;
+      }
+      #importField {
+      position: fixed;
+      top: 35%;
+      left: 35%;
+      transform: translateX(-50%);
+      transform: translateY(-35%);
+      resize: none;
+      z-index: 4;
+      visibility: hidden;
+      }
+      #missing{
+      position: absolute;
+      width: 39.5%;
+      height:100%;
+      background: #EAf0f6;
+      border: groove;
+      resize: none;
+      z-index: 1;
+      }
+	  #courseDetails{
+	  transform: translateY(1px);
+      position: absolute;
+      width: 39.8%;
+      height:100%;
+	  left: 39.8%;
+      border: groove;
+      z-index: 3;
+      }
+	  
+      #myInput{
+      position: relative;
+      transform: scale(1.0, 1.0);
+      width: 100%;
+      height: 3%;
+      font-size: 18px;
+      }
+      #courses{
+      top: 10%;
+      position: absolute;
+      width: 80%;
+      background: #EAf0f6;
+      border: inset;
+      z-index: 4;
+      }
+      #footer {
+      position:fixed;
+      left:0px;
+      bottom:0px;
+      height:20px;
+      width:100%;
+      z-index: 3;
+      background: rgba(176,196,222);
+      border: outset;
+      text-align: center;
+      vertical-align: middle;
+      }
+	  
+   </style>
+   <head>
+      <title>Planner</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="shortcut icon" href="favicon.ico">
+   </head>
+   <body onLoad="clear()">
+      <script>
+         function clear(){
+			document.cookie = 'same-site-cookie=__utmb; SameSite=Lax';
+			document.getElementById('courseDetails').src = "";
+         	document.getElementById("myInput").value = "";
+			loadJSON();
+			document.getElementById("rem").checked = false;
+			document.getElementById('coursesPer').value = 5;
+			setUp();
+         	updateTable();
+         	updateSem();
+         }
+      </script>
+      <textarea id="importField" rows="20" cols="70" autofocus placeholder="Paste Transcript Here" onKeyUp="checkEnter(event)" readonly></textarea>
+      <div class = "overlay" id="overlay"></div>
+      <script> //CLICK OFF
+			var element = document.getElementById("overlay");
+			element.onclick = function() {
+         	var imp = document.getElementById("importField");
+         	element.style.visibility = "hidden";
+         	imp.style.visibility = "hidden";
+         	imp.setAttribute("readonly", "true");
+         }
+      </script>
+      <div class = "split left">
+         <div class = "menu">
+            <input type = "button" id="import" onClick="importVis()"  value="Import">
+            <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate" title="Calculate your Percentage Complete">
+            <input type = "button" id="Gen" onClick="checkGen()"  value="Generate" title="Make a Basic Schedule">
+            <select name = "Major" id = "Major">
+               <option value="select">Select a Major</option>
+               <option value="Computer Science">Computer Science</option>
+            </select>
+            <select name = "Minor" id = "Minor" onChange="multiMinor()">
+               <option value="select">Select a Minor</option>
+               <option value="Neuro Science">Neuro Science</option>
+               <option value="Psychology">Psychology</option>
+            </select>
+			
+			
+         </div>
+		 <div class = "menu right">
+				<label>Remove</label>
+				<input type = "checkbox" id="rem" onClick= "removeMode()"  value="Remove" title="Click Courses to Remove">
+				<input type="number" id="coursesPer" value="5" max="8" min="3" onChange="changePer()">
+		 </div>
+         <div class="centered">
+            <table width="100%" border="1" cellspacing="1" cellpadding="5" style="width:80%">
+               <tbody id="tbody">
+                  <tr id="sem">
+                     <th scope="col" id="S1">&nbsp;Semester 1</th>
+                     <th scope="col" id="S2">&nbsp;Semester 2</th>
+                     <th scope="col" id="S3">&nbsp;Semester 3</th>
+                     <th scope="col" id="S4">&nbsp;Semester 4</th>
+                     <th scope="col" id="S5">&nbsp;Semester 5</th>
+                     <th scope="col" id="S6">&nbsp;Semester 6</th>
+                     <th scope="col" id="S7">&nbsp;Semester 7</th>
+                     <th scope="col" id="S8">&nbsp;Semester 8</th>
+                  </tr>
+               </tbody>
+            </table>
+            <textarea id="missing" readonly>Missing:</textarea>
+			<iframe id="courseDetails" name="Details" title="Details"></iframe>
+         </div>
+      </div>
+      <script src="index.js"></script>
+      <div class="split rightU">
+         <h2>Class Picker</h2>
+      </div>
+      <div class="split rightD">
+         <input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a course name">
+         <ul id="searchList"></ul>
+      </div>
+   </body>
+   <footer id="footer">
+      Nathan Reed 2020
+   </footer>
 </html>

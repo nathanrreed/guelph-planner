@@ -477,6 +477,10 @@ function search() {
 function changeView(id){
 	var iframe = document.getElementById('courseDetails');
 	iframe.src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
+	 let requestURL = ('https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/acct3340.shtml'); //MAKE RELATIVE?
+    let request = new XMLHttpRequest();
+    request.open('GET', requestURL);
+	console.log(request);
 }
 
 function narrowSearch(txt, input, mod){
