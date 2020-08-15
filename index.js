@@ -629,7 +629,7 @@ function sortMissingCourses(a, b){
 
 function updateMissing(){
 	let miss = document.getElementById('missing');
-	miss.innerHTML = "Missing:";
+	miss.innerHTML = "";
 	let taken, element;
 	
 	if(missing[0] == null){
@@ -638,8 +638,27 @@ function updateMissing(){
 	}
 	
 	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
-	missing.forEach(mCourse=> miss.innerHTML = miss.innerHTML + '\n' + mCourse.code);
+	missing.forEach(mCourse=> {
+		if(miss.innerHTML == ""){
+			miss.innerHTML = mCourse.code + addSpaces(mCourse.code) + 'q';
+		}else{
+			miss.innerHTML = miss.innerHTML + '\n' + mCourse.code + addSpaces(mCourse.code) + 'q';
+		}
+	
+	});
 	missing = [];
+}
+
+function addSpaces(string){
+	let numSpaces = 9 - string.length;
+	let spaces = '          ';
+	
+	while(numSpaces > 0){
+		spaces = spaces.concat(' ');
+		numSpaces--;
+	}
+	
+	return spaces;
 }
 
 function changePer(){
