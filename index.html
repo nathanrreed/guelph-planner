@@ -12,141 +12,6 @@
       gtag('config', 'UA-172038379-1');
    </script>
    <meta charset="utf-8">
-   <style>
-      body {
-      font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
-      color: black;
-      }
-	  
-      .overlay {
-      position: fixed;
-      height: 100%;
-      width: 100%;
-      left: 0;
-      top: 0;
-      z-index: 9;
-      background-color: #000000;
-      opacity: 0.5;
-      visibility: hidden;
-      }
-	  
-	  
-	  .centered {
-		margin: auto;
-      }
-	  
-	  @media (min-width:60px){
-        .centered {
-		width: 100%;
-      }
-
-    }
-	  
-	  @media (min-width:850px){
-        .centered {
-		width: 85%;
-      }
-
-    }
-	
-	@media (min-width:960px){
-        .centered {
-		width: 75%;
-      }
-
-    }
-	
-    @media (min-width:1100px){
-      .centered {
-		width: 65%;
-      }
-    }
-      .search {
-      width: 40%;
-      }
-	  
-      #importField {
-      position: fixed;
-      top: 35%;
-      left: 35%;
-      transform: translateX(-50%);
-      transform: translateY(-35%);
-      resize: none;
-      z-index: 10;
-      visibility: hidden;
-      }
-	  
-      #missing{
-      position: relative;
-      width: 100%;
-      height: 210px; 
-      background: #EAf0f6;
-      border: groove;
-      resize: none;
-      z-index: 1;
-	   box-sizing: border-box;
-      }
-	  
-      #courseDetails{
-      position: relative;
-      width: 100%;
-      height: 210px; //MAKE RELATIVE LATER
-      border: groove;
-      z-index: 3;
-      transform: translateY(2px);
-	   box-sizing: border-box;
-      }
-	  
-      #myInput{
-      position: relative;
-      transform: scale(1.0, 1.0);
-      font-size: 20px;
-      width: 100%;
-      //box-sizing: border-box;
-      }
-	  
-      #courses{ //GRID
-      top: 10%;
-      position: absolute;
-      width: 80%;
-      background: #EAf0f6;
-      border: inset;
-      z-index: 4;
-      }
-	  
-      #searchList {
-      position: fixed;
-	  visibility: hidden;
-	  
-      border: 3px solid #003b6f;
-      background-color: #FFFFFF;
-      //padding: 10px;
-      font-size: 22px;
-      //transform: translateY(-16px);
-      z-index: 4;
-	  box-sizing: border-box;
-      width: 40%;
-      }
-	  
-      #footer {
-      position:fixed;
-      left:0px;
-      bottom:0px;
-      height:20px;
-      width:100%;
-      z-index: 3;
-      background: rgba(176,196,222);
-      border: outset;
-      text-align: center;
-      vertical-align: middle;
-      }
-	  
-      ul {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      }
-   </style>
    <head>
       <title>Planner</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -232,6 +97,7 @@
          
       </div>
       <script src="index.js"></script>
+	  <link rel="stylesheet" href="styles.css"> 
    </body>
    <footer id="footer">
       Nathan Reed 2020
