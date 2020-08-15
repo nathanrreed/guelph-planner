@@ -309,7 +309,8 @@ function removeRow(old){
 }
 
 function addCourse(el){
-	let array = document.getElementById("searchList").getElementsByTagName("li");
+	let array = document.getElementById("searchList").getElementsByTagName("ul");
+	document.getElementById('searchList').style.visibility = "hidden";
 	for (let i = 0; i < array.length; i++) {
 		array[i].style.display = "none"; //REMOVE?? DELETES THE SEARCH
 	}
@@ -402,14 +403,15 @@ function loadJSON(){
 
 function results(c){
 	let search = document.getElementById("searchList");
-	let li = document.createElement('li');
+	let ul = document.createElement('ul');
 	let a = document.createElement('a');
-	li.appendChild(a);
+	ul.appendChild(a);
 	a.id = "#";
 	a.innerText = c.code + ' \u200C' + c.name;
 	a.onclick = function() {addCourse(this)};
-	search.appendChild(li);
-	li.style.display = "none";
+	
+	search.appendChild(ul);
+	ul.style.display = "none";
 }
 
 function findList(id){
@@ -453,7 +455,7 @@ function search() {
     let usrIn = input.value.toUpperCase();
 	
     ul = document.getElementById("searchList");
-	let array = ul.getElementsByTagName("li");
+	let array = ul.getElementsByTagName("ul");
 	
 	for (let i = 0; i < array.length; i++) {
 		let split = array[i].getElementsByTagName("a")[0].innerText.split('\u200C');
@@ -465,13 +467,15 @@ function search() {
 	countArray.reverse();
 	let num = 0;
 	for (let i = 0; i < countArray.length; i++) {
-		if (num < 40 && narrowSearch(countArray[i], usrIn, true)) {
+		if (num < 8 && narrowSearch(countArray[i], usrIn, true)) {
 			countArray[i].style.display = "";
 			num++;
 		} else {
 			countArray[i].style.display = "none";
 		}
 	}
+	
+	document.getElementById('searchList').style.visibility = "visible";
 }
 
 function changeView(id){

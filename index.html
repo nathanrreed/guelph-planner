@@ -1,74 +1,46 @@
+
+
 <!doctype html>
 <html>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-172038379-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-172038379-1');
-</script>
-
+   <!-- Global site tag (gtag.js) - Google Analytics -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172038379-1"></script>
+   <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      
+      gtag('config', 'UA-172038379-1');
+   </script>
    <meta charset="utf-8">
    <style>
       body {
       font-family: Cambria, "Hoefler Text", "Liberation Serif", Times, "Times New Roman", "serif";
       color: black;
       }
+	  
       .overlay {
       position: fixed;
       height: 100%;
       width: 100%;
       left: 0;
       top: 0;
-      z-index: 2;
+      z-index: 9;
       background-color: #000000;
       opacity: 0.5;
       visibility: hidden;
       }
-      .split {
-      height: 100%;
-      position: fixed;
-      z-index: 1;
-      top: 0;
-      overflow-x: hidden;
-      background-color: #EAf0f6;
-      }
-      .left {
-      width: 75%;
-      left: 0;
-      }
-	  .right {
-      width: 75%;
-      right: 0;
-      }
-      .menu {
-      position: relative;
-      width: 75%;
-      left: 10%;
-      top: 15%;
-      }
-      .rightD {
-      width: 25%;
-      top: 10%;
-      right: 0;
-      height: 87%;
-      border: inset;
-      }
-      .rightU {
-      position: fixed;
-      width: 25%;
-      height: 10%;
-      right: 0%;
-      }
+	  
       .centered {
-      position: relative;
-      top: 15%;
-      left: 50%;
-      transform: translate(-40%, 0%);
-      //text-align: center;
+      margin: auto;
+      width: 65%;
+      //border: 3px solid #73AD21;
+      //padding: 10px;
       }
+	  
+      .search {
+      width: 40%;
+      }
+	  
       #importField {
       position: fixed;
       top: 35%;
@@ -76,36 +48,42 @@
       transform: translateX(-50%);
       transform: translateY(-35%);
       resize: none;
-      z-index: 4;
+      z-index: 10;
       visibility: hidden;
       }
+	  
       #missing{
-      position: absolute;
-      width: 39.5%;
-      height:100%;
+      position: relative;
+      width: 50%;
+      height: 210px; //MAKE RELATIVE LATER
+      top: 0;
       background: #EAf0f6;
       border: groove;
       resize: none;
       z-index: 1;
+	   box-sizing: border-box;
       }
-	  #courseDetails{
-	  transform: translateY(1px);
-      position: absolute;
-      width: 39.8%;
-      height:100%;
-	  left: 39.8%;
+	  
+      #courseDetails{
+      position: relative;
+      width: 49.7%;
+      right: 0;
+      height: 210px; //MAKE RELATIVE LATER
       border: groove;
       z-index: 3;
+      transform: translateY(3px);
+	   box-sizing: border-box;
       }
 	  
       #myInput{
       position: relative;
       transform: scale(1.0, 1.0);
+      font-size: 20px;
       width: 100%;
-      height: 3%;
-      font-size: 18px;
+      //box-sizing: border-box;
       }
-      #courses{
+	  
+      #courses{ //GRID
       top: 10%;
       position: absolute;
       width: 80%;
@@ -113,6 +91,21 @@
       border: inset;
       z-index: 4;
       }
+	  
+      #searchList {
+      position: fixed;
+	  visibility: hidden;
+	  
+      border: 3px solid #003b6f;
+      background-color: #FFFFFF;
+      //padding: 10px;
+      font-size: 22px;
+      //transform: translateY(-16px);
+      z-index: 4;
+	  box-sizing: border-box;
+      width: 40%;
+      }
+	  
       #footer {
       position:fixed;
       left:0px;
@@ -126,22 +119,27 @@
       vertical-align: middle;
       }
 	  
+      ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      }
    </style>
    <head>
       <title>Planner</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="shortcut icon" href="favicon.ico">
    </head>
-   <body onLoad="clear()">
+   <body onLoad="clear()" style="background-color: #EAf0f6">
       <script>
          function clear(){
-			document.cookie = 'same-site-cookie=__utmb; SameSite=Lax';
-			document.getElementById('courseDetails').src = "";
+         document.cookie = 'same-site-cookie=__utmb; SameSite=Lax';
+         document.getElementById('courseDetails').src = "";
          	document.getElementById("myInput").value = "";
-			loadJSON();
-			document.getElementById("rem").checked = false;
-			document.getElementById('coursesPer').value = 5;
-			setUp();
+         loadJSON();
+         document.getElementById("rem").checked = false;
+         document.getElementById('coursesPer').value = 5;
+         setUp();
          	updateTable();
          	updateSem();
          }
@@ -149,65 +147,58 @@
       <textarea id="importField" rows="20" cols="70" autofocus placeholder="Paste Transcript Here" onKeyUp="checkEnter(event)" readonly></textarea>
       <div class = "overlay" id="overlay"></div>
       <script> //CLICK OFF
-			var element = document.getElementById("overlay");
-			element.onclick = function() {
-         	var imp = document.getElementById("importField");
-         	element.style.visibility = "hidden";
-         	imp.style.visibility = "hidden";
-         	imp.setAttribute("readonly", "true");
-         }
+         var element = document.getElementById("overlay");
+         element.onclick = function() {
+               	var imp = document.getElementById("importField");
+               	element.style.visibility = "hidden";
+               	imp.style.visibility = "hidden";
+               	imp.setAttribute("readonly", "true");
+               }
+            
       </script>
-      <div class = "split left">
-         <div class = "menu">
-            <input type = "button" id="import" onClick="importVis()"  value="Import">
-            <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate" title="Calculate your Percentage Complete">
-            <input type = "button" id="Gen" onClick="checkGen()"  value="Generate" title="Make a Basic Schedule">
-            <select name = "Major" id = "Major">
-               <option value="select">Select a Major</option>
-               <option value="Computer Science">Computer Science</option>
-            </select>
-            <select name = "Minor" id = "Minor" onChange="multiMinor()">
-               <option value="select">Select a Minor</option>
-               <option value="Neuro Science">Neuro Science</option>
-               <option value="Psychology">Psychology</option>
-            </select>
-			
-			
-         </div>
-		 <div class = "menu right">
-				<label>Remove</label>
-				<input type = "checkbox" id="rem" onClick= "removeMode()"  value="Remove" title="Click Courses to Remove">
-				<input type="number" id="coursesPer" value="5" max="8" min="3" onChange="changePer()">
-		 </div>
-         <div class="centered">
-            <table width="100%" border="1" cellspacing="1" cellpadding="5" style="width:80%">
-               <tbody id="tbody">
-                  <tr id="sem">
-                     <th scope="col" id="S1">&nbsp;Semester 1</th>
-                     <th scope="col" id="S2">&nbsp;Semester 2</th>
-                     <th scope="col" id="S3">&nbsp;Semester 3</th>
-                     <th scope="col" id="S4">&nbsp;Semester 4</th>
-                     <th scope="col" id="S5">&nbsp;Semester 5</th>
-                     <th scope="col" id="S6">&nbsp;Semester 6</th>
-                     <th scope="col" id="S7">&nbsp;Semester 7</th>
-                     <th scope="col" id="S8">&nbsp;Semester 8</th>
-                  </tr>
-               </tbody>
-            </table>
-            <textarea id="missing" readonly>Missing:</textarea>
-			<iframe id="courseDetails" name="Details" title="Details"></iframe>
-         </div>
-      </div>
-      <script src="index.js"></script>
-      <div class="split rightU">
-         <h2>Class Picker</h2>
-      </div>
-      <div class="split rightD">
+      <div class="centered search">
+         <h1>Guelph Planner</h1>
          <input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a course name">
          <ul id="searchList"></ul>
       </div>
+      <div class="centered" style="padding-top: 10px;">
+         <input type = "button" id="import" onClick="importVis()"  value="Import">
+         <input type = "button" id="Calc" onClick="checkCalc()"  value="Calculate" title="Calculate your Percentage Complete">
+         <input type = "button" id="Gen" onClick="checkGen()"  value="Generate" title="Make a Basic Schedule">
+         <select name = "Major" id = "Major">
+            <option value="select">Select a Major</option>
+            <option value="Computer Science">Computer Science</option>
+         </select>
+         <select name = "Minor" id = "Minor" onChange="multiMinor()">
+            <option value="select">Select a Minor</option>
+            <option value="Neuro Science">Neuro Science</option>
+            <option value="Psychology">Psychology</option>
+         </select>
+         <br>
+         <label>Remove</label>
+         <input type = "checkbox" id="rem" onClick= "removeMode()"  value="Remove" title="Click Courses to Remove">
+         <input type="number" id="coursesPer" value="5" max="8" min="3" onChange="changePer()">
+         <table width="100%" border="1" cellspacing="1" cellpadding="5">
+            <tbody id="tbody">
+               <tr id="sem">
+                  <th scope="col" id="S1">&nbsp;Semester 1</th>
+                  <th scope="col" id="S2">&nbsp;Semester 2</th>
+                  <th scope="col" id="S3">&nbsp;Semester 3</th>
+                  <th scope="col" id="S4">&nbsp;Semester 4</th>
+                  <th scope="col" id="S5">&nbsp;Semester 5</th>
+                  <th scope="col" id="S6">&nbsp;Semester 6</th>
+                  <th scope="col" id="S7">&nbsp;Semester 7</th>
+                  <th scope="col" id="S8">&nbsp;Semester 8</th>
+               </tr>
+            </tbody>
+         </table>
+         <textarea id="missing" readonly>Missing:</textarea>
+         <iframe id="courseDetails" name="Details" title="Details"></iframe>
+      </div>
+      <script src="index.js"></script>
    </body>
    <footer id="footer">
       Nathan Reed 2020
    </footer>
 </html>
+
