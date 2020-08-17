@@ -87,6 +87,11 @@ function updateTable() {
 
 function updateSem(){ //SEMESTER HEADER UPDATES
 	let s = startSem;
+	
+	if(semesters.length > 0){
+		s = new semester(getNextSem(semesters[semesters.length - 1]));
+	}
+	
 	for(let i = 1; i <= (8 + add); i++){
 		let sem = document.getElementById('S' + i);
 		sem.style.background = '#EAf0f6';
@@ -94,7 +99,7 @@ function updateSem(){ //SEMESTER HEADER UPDATES
 		
 		sem.onclick = function() {changeSem(this)};
 		
-        if(i < semesters.length){
+        if(i < semesters.length){ //Already Happened
            sem.innerHTML = 'Semester ' + i + ' ' + semesters[i].sem; //ADD SEMESTER 
         }else{
            sem.innerHTML = 'Semester ' + i + ' ' + s.sem; //ADD SEMESTER 
@@ -165,7 +170,8 @@ function importInfo() {
 	}
     
     numSem++;
-    currSem = currSem = getNextSem(new semester(semesters[semesters.length - 1].sem));
+    currSem = getNextSem(new semester(semesters[semesters.length - 1].sem));
+	
     findMajor(); //REMOVE NEEDS TO BE CHECKED
     updateTable();
 	updateSem();
