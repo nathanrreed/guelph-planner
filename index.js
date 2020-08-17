@@ -481,7 +481,10 @@ function search() {
 function changeView(id){
 	var iframe = document.getElementById('courseDetails');
 	//iframe.textContent = "Privacy Badger or other blocker is preventing course details from being displayed";
-	iframe.src = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
+	let url = 'https://www.uoguelph.ca/registrar/calendars/undergraduate/current/courses/' + id.replace('*','').toLowerCase().trim() + '.shtml';
+	if(iframe.src !== url){
+		iframe.src = url;
+	}
 }
 
 function narrowSearch(txt, input, mod){
@@ -532,7 +535,7 @@ function sortSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
 }
 
 function findMajor(){ //TEMP
-	currMajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3'), new major(6, 'CIS*3'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3'), new major(7, 'CIS*4')]; //Add cis electives
+	currMajor = [new major(0, 'CIS*1300'), new major(0, 'CIS*1910'), new major(0, 'MATH*1200'), new major(1, 'CIS*2500'), new major(1, 'CIS*2910'), new major(1, 'MATH*1160'), new major(2, 'CIS*2030'), new major(2, 'CIS*2430'), new major(2, 'CIS*2520'), new major(3, 'CIS*2750'), new major(3, 'CIS*3110'), new major(3, 'CIS*3490'), new major(4, 'CIS*3150'), new major(4, 'CIS*3750'), new major(4, 'STAT*2040'), new major(5, 'CIS*3760'), new major(7, 'CIS*4650'), new major(5, 'CIS*3_'), new major(6, 'CIS*3_'), new major(6, 'CIS*4'), new major(6, 'CIS*4'), new major(7, 'CIS*3_'), new major(7, 'CIS*4')]; //Add cis electives
 }
 
 function checkGen(){
@@ -627,10 +630,15 @@ function sortMissingCourses(a, b){
 	return codeA - codeB;
 }
 
+function changeMajor(){
+	findMajor();
+	updateMissing();
+}
+
 function updateMissing(){
 	let miss = document.getElementById('missing');
 	miss.innerHTML = "";
-	let taken, element;
+	//let taken, element;
 	
 	if(missing[0] == null){
 		missing = currMajor.filter(c => findMiss(c.code));
