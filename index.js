@@ -54,7 +54,8 @@ function updateTable() {
 				let link = document.createTextNode(dataTable[x][y].code);
 				a.appendChild(link);
 				cell.appendChild(a);
-				cell.onmouseenter = function(){changeView(dataTable[x][y].code)}; //onmouseover??
+				
+				cell.onmouseenter = function(){if(dataTable[x][y] != null){changeView(dataTable[x][y].code)}}; //onmouseover??
 				
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
@@ -115,6 +116,7 @@ function updateSem(){ //SEMESTER HEADER UPDATES
 
 function wipeTable(){
 	dataTable = [[],[],[],[],[],[],[],[]];
+	semesters = [];
 	updateTable();
 	updateSem();
 	
@@ -153,13 +155,31 @@ function importInfo() {
 		}
 	}
 	
+	while(overload < 3){ //ADD ROWS TO MAX
+		addRow(overload + 5);
+		overload++;
+	}
+	
 	let input = document.getElementById("importField").value;
 	let inputLines = input.split('\n');
 	inputLines = inputLines.filter(line => (line != null && line != "" && line != "\t" && line.indexOf('.') == -1)).reverse(); //SEMESTER -> GRADE -> COURSE
 	currSem = inputLines[0];
-    semesters[1] = new semester(currSem); //CANT START IN SUMMER?
+    semesters[1] = new semester(currSem);
     
+	
+	let count = 0, tempCount = 0;
+	let currCheck = "";
 	for (let i = 0; i < inputLines.length; i += 2) {
+		if(inputLines[i] != currCheck){ //FINDS THE MAX ROWS USED PREVIOUSLY
+			if(tempCount > count){
+				count = tempCount;
+			}
+			tempCount = 0;
+			currCheck = inputLines[i];
+		}else{
+			tempCount++;
+		}
+		
 		let grade = inputLines[i + 2];
 		if(grade != null && grade.indexOf('*') != -1){
 			getInfo(inputLines[i], inputLines[i + 2], inputLines[i + 1]);
@@ -169,6 +189,13 @@ function importInfo() {
 		}
 	}
     
+	while(overload > count - 4){ //REMOVE UNNEEDED ROWS
+		removeRow(overload + 5, true);
+		overload--;
+	}
+	
+	document.getElementById('coursesPer').value = overload + 5;
+	
     numSem++;
     currSem = getNextSem(new semester(semesters[semesters.length - 1].sem));
 	
@@ -256,7 +283,7 @@ function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 function nextSemester(sem){
     let next = null;
 	if(sem.indexOf('S') != -1){
-		addColumn();
+		//addColumn();
         next = 'S'; 
 	}
     
@@ -307,10 +334,13 @@ function addRow(num){
 	
 }
 
-function removeRow(old){
-	overload++;
-	wipeTable();
-	overload--;
+function removeRow(old, wipe){
+	if(!wipe){
+		overload++;
+		wipeTable();
+		overload--;
+	}
+	
 	document.getElementById('tbody').removeChild(document.getElementById('tbody').lastChild);
 }
 
@@ -685,9 +715,10 @@ function changePer(){
 				addRow(i);
 			}
 		}else{
-			if(!checkEmpty() || confirm("Will Clear Table")){
+			let wipe = checkRowEmpty(overload + 5);
+			if(!checkEmpty() || wipe || confirm("Will Clear Table")){
 				for(let i = per - 1; i  < old + 4; i++){
-						removeRow(old);
+					removeRow(old, wipe);
 				}
 			}else{
 				overload = old;
@@ -698,4 +729,14 @@ function changePer(){
 	}else{
 		document.getElementById('coursesPer').value = old + 5;
 	}
+}
+
+function checkRowEmpty(row){
+	for (let x = 0; x < (8 + add); x++) {
+		if (dataTable[x] != null && dataTable[x][row] != null) {
+			return false;
+		}
+	}
+	
+	return true;
 }
