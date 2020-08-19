@@ -259,12 +259,20 @@ function importInfo() {
 
 function changeSem(sem){
 	let clicked = sem.id.charAt(1) - 1;
-	if(dataTable[clicked].length < (5 + overload)){
+	if(dataTable[clicked].length < (5 + overload) && clicked >= findCurrSem()){
 		numSem = clicked;
 		updateSem();
 	}else{
 		//ALERT?? CANT ADD TO FULL SEMESTER
 	}
+}
+
+function findCurrSem(){
+	 for(let i = 1; i <= (8 + add); i++){
+		 if(document.getElementById('S' + i).innerHTML.includes(startSem.sem)){
+			 return i - 1;
+		 }
+	 }
 }
 
 function findNextSem(c){
