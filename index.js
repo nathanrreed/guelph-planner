@@ -6,6 +6,7 @@ var currMajor = [];
 var semesters = [];
 var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 var remove = false;
+var dropLocation = null;
 
 var startSem = new semester('F20'); //NEEDS TO UPDATE AUTOMATICALLY
 const current = '2020-2021' //FIX!
@@ -56,7 +57,8 @@ function updateTable() {
 				cell.appendChild(a);
 				
 				cell.onmouseenter = function(){if(dataTable[x][y] != null){changeView(dataTable[x][y].code)}}; //onmouseover??
-				
+				cell.draggable = true;
+
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
 				}
@@ -80,10 +82,47 @@ function updateTable() {
 			}else{
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
+			
+			//DRAG AND DROP COURSES
+			cell.ondragover = function(){dropLocation = getLetter(y) + x};
+			cell.ondragend = function(){drop(cell)};
 		}
 	}
 	
 	updateMissing();
+}
+
+function drop(cell) {
+	let old = document.getElementById(cell);
+	
+	let nx = dropLocation.charAt(1);
+	let ny = getNumber(dropLocation.charAt(0));
+	dropLocation = null;
+	
+	
+	let ox = cell.id.charAt(1);
+	let oy = getNumber(cell.id.charAt(0));
+	
+	let replace = dataTable[ox][oy];
+	dataTable[ox][oy] = null;
+	if(dataTable[nx][ny] !== null){
+		checkForNext(dataTable[nx][ny], nx, ox, oy);
+	}
+	//removeCell(cell);
+	dataTable[nx][ny] = replace;
+			
+	
+	updateTable();
+}
+
+function checkForNext(ptr, x, ox, oy, cell){
+	for (let y = 0; y < (5 + overload); y++) {
+		if(dataTable[x][y] == null){
+			dataTable[x][y] = ptr;
+			return 0;
+		}
+	}
+	dataTable[ox][oy] = ptr;
 }
 
 function updateSem(){ //SEMESTER HEADER UPDATES
@@ -686,7 +725,7 @@ function updateMissing(){
 	
 	if(missing[0] == null){
 		missing = currMajor.filter(c => findMiss(c.code));
-        missing = missing.filter(c => findCourseOfLevel(c));
+        //missing = missing.filter(c => findCourseOfLevel(c));
 	}
 	
 	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
