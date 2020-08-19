@@ -189,6 +189,10 @@ function importInfo() {
 		}
 	}
     
+	if(tempCount > count){
+		count = tempCount;
+	}
+	
 	while(overload > count - 4){ //REMOVE UNNEEDED ROWS
 		removeRow(overload + 5, true);
 		overload--;
@@ -650,19 +654,23 @@ function sortMissingCourses(a, b){
 	let codeA = a.substring(a.indexOf('*') + 1, a.length);
 	let codeB = b.substring(b.indexOf('*') + 1, a.length);
 	
-	if(codeA.length == 1){
+	
+	
+	
+	if (courseA < courseB && codeA.length == 4) {
+		return -1;
+	}else if (courseA > courseB && codeB.length == 4) {
+		return 1;
+	}
+	
+	if(codeA.length < 4){
 		codeA = codeA * 1000;
 	}
 	
-	if(codeB.length == 1){
+	if(codeB.length < 4){
 		codeB = codeB * 1000;
 	}
 	
-	if (courseA < courseB) {
-		return -1;
-	}else if (courseA > courseB) {
-		return 1;
-	}
 	return codeA - codeB;
 }
 
