@@ -49,7 +49,8 @@ function updateTable() {
 				cell.style.background = '#EAf0f6';
 				cell.style.borderColor = null;
 				cell.style.borderWidth = '1px';
-			}
+			} 
+			
 			if (dataTable[x] != null && dataTable[x][y] != null) {
 				let a = document.createElement('a');
 				let link = document.createTextNode(dataTable[x][y].code);
@@ -57,10 +58,10 @@ function updateTable() {
 				cell.appendChild(a);
 				
 				cell.onmouseenter = function(){if(dataTable[x][y] != null){changeView(dataTable[x][y].code)}}; //onmouseover??
-				cell.draggable = true;
 
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
+					cell.style.cursor = "not-allowed"; 
 				}
                 
                 let obj = findList(dataTable[x][y].code);
@@ -77,13 +78,16 @@ function updateTable() {
 				}else if(dataTable[x][y].passed == -1){ //FAILED COURSES DENODED
 					cell.style.background = 'rgba(255, 170, 170, 0.3)';
 					cell.style.borderColor = 'rgba(255, 170, 170, 0.8)';
+				}else{
+					cell.draggable = true;
+					cell.style.cursor = "grab"; 
 				}
                 
 			}else{
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
 			
-			//DRAG AND DROP COURSES
+			//DRAG AND DROP COURSES		
 			cell.ondragover = function(){dropLocation = getLetter(y) + x};
 			cell.ondragend = function(){drop(cell)};
 		}
@@ -93,26 +97,32 @@ function updateTable() {
 }
 
 function drop(cell) {
-	let old = document.getElementById(cell);
-	
-	let nx = dropLocation.charAt(1);
-	let ny = getNumber(dropLocation.charAt(0));
-	dropLocation = null;
-	
-	
-	let ox = cell.id.charAt(1);
-	let oy = getNumber(cell.id.charAt(0));
-	
-	let replace = dataTable[ox][oy];
-	dataTable[ox][oy] = null;
-	if(dataTable[nx][ny] !== null){
-		checkForNext(dataTable[nx][ny], nx, ox, oy);
+	if(dropLocation != null){
+		let old = document.getElementById(cell);
+		
+		let nx = dropLocation.charAt(1);
+		let ny = getNumber(dropLocation.charAt(0));
+		
+		if(dataTable[nx][ny] != null && dataTable[nx][ny].passed != 0){
+			return;
+		}
+		
+		dropLocation = null;
+		
+		
+		let ox = cell.id.charAt(1);
+		let oy = getNumber(cell.id.charAt(0));
+		
+		let replace = dataTable[ox][oy];
+		dataTable[ox][oy] = null;
+		if(dataTable[nx][ny] !== null){
+			checkForNext(dataTable[nx][ny], nx, ox, oy);
+		}
+		//removeCell(cell);
+		dataTable[nx][ny] = replace;
+				
+		updateTable();
 	}
-	//removeCell(cell);
-	dataTable[nx][ny] = replace;
-			
-	
-	updateTable();
 }
 
 function checkForNext(ptr, x, ox, oy, cell){
@@ -637,7 +647,7 @@ function findElect(c){ //CHECKS IF THE COURSE CODE IS FULL (not a level)
 	return true;
 }
 
-function findCourseOfLevel(c){
+function findCourseOfLevel(c){ //BROKEN?
     if(c.code.replace(/[^0-9/]/g, '').length == 4){
         return true;
     }
@@ -645,13 +655,15 @@ function findCourseOfLevel(c){
     let out = true;
 
     dataTable.forEach(dt => dt.forEach(el => {
-        let found = currMajor.find(f => f.code == el.code);
-        if(found == null && (el.code.startsWith(c.code) || levelAbove(el.code, c.code))){
-            found = currMajor.findIndex(f => f == c);
-            currMajor[found] = new major(c.sem, el.code);
-            out = false;
-            return false;
-        }
+		if(el != null){
+			let found = currMajor.find(f => f.code == el.code);
+			if(found == null && (el.code.startsWith(c.code) || levelAbove(el.code, c.code))){
+				found = currMajor.findIndex(f => f == c);
+				currMajor[found] = new major(c.sem, el.code);
+				out = false;
+				return false;
+			}
+		}
     }));
     
     return out;
@@ -725,7 +737,7 @@ function updateMissing(){
 	
 	if(missing[0] == null){
 		missing = currMajor.filter(c => findMiss(c.code));
-        //missing = missing.filter(c => findCourseOfLevel(c));
+        missing = missing.filter(c => findCourseOfLevel(c));
 	}
 	
 	missing.sort((a, b) => sortMissingCourses(a.code, b.code));
