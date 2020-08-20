@@ -57,7 +57,7 @@ function updateTable() {
 				a.appendChild(link);
 				cell.appendChild(a);
 				
-				cell.onmouseenter = function(){if(dataTable[x][y] != null){changeView(dataTable[x][y].code)}}; //onmouseover??
+				cell.onmouseenter = function(){if(dataTable[x][y] != null){changeView(dataTable[x][y].code)}}; //Updates iframe
 
 				if(remove){
 					cell.onclick = function() {removeCell(this)};
@@ -73,12 +73,14 @@ function updateTable() {
 					cell.style.borderColor = '#003b6f';
 					cell.style.borderWidth = '2px';
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
+					cell.draggable = true;
+					cell.style.cursor = "grab"; 
 				}else if(dataTable[x][y].passed == 2){ //COMPLETED COURSES DENODED
 					cell.style.background = 'rgba(195, 209, 221, 0.7)';
 				}else if(dataTable[x][y].passed == -1){ //FAILED COURSES DENODED
 					cell.style.background = 'rgba(255, 170, 170, 0.3)';
 					cell.style.borderColor = 'rgba(255, 170, 170, 0.8)';
-				}else{
+				}else if(dataTable[x][y].passed == 0){
 					cell.draggable = true;
 					cell.style.cursor = "grab"; 
 				}
@@ -99,12 +101,14 @@ function updateTable() {
 
 function drop(cell) {
 	if(dropLocation != null){
+		cell.draggable = false;
+		cell.style.cursor = "auto"; 
 		let old = document.getElementById(cell);
 		
 		let nx = dropLocation.charAt(1);
 		let ny = getNumber(dropLocation.charAt(0));
 		
-		if(dataTable[nx][ny] != null && dataTable[nx][ny].passed != 0){
+		if(dataTable[nx][ny] != null && !(dataTable[nx][ny].passed == 0 || dataTable[nx][ny].passed == 1)){ //Cant reorder taken classes
 			return;
 		}
 		
@@ -119,9 +123,14 @@ function drop(cell) {
 		if(dataTable[nx][ny] !== null){
 			checkForNext(dataTable[nx][ny], nx, ox, oy);
 		}
-		//removeCell(cell);
+
 		dataTable[nx][ny] = replace;
-				
+		
+		if(nx > findCurrSem()){
+			dataTable[nx][ny].passed = 0;
+		}else{
+			dataTable[nx][ny].passed = 1;
+		}
 		updateTable();
 	}
 }
@@ -134,6 +143,7 @@ function checkForNext(ptr, x, ox, oy, cell){
 		}
 	}
 	dataTable[ox][oy] = ptr;
+	dataTable[ox][oy].passed = 0;
 }
 
 function updateSem(){ //SEMESTER HEADER UPDATES
@@ -659,7 +669,6 @@ function narrowSearch(txt, input, mod){
 }
 
 function sortSearch(txt, txt2, input){ //USED TO SORT COURSE ORDER
-
 	if (narrowSearch(txt, input, false)) { //NEEDS A REWORK!!
 		return 1;
 	}else if (narrowSearch(txt2, input, false)) {
@@ -749,9 +758,6 @@ function sortMissingCourses(a, b){
 	let courseB = b.toLowerCase().substring(0, b.indexOf('*') - 1);
 	let codeA = a.substring(a.indexOf('*') + 1, a.length);
 	let codeB = b.substring(b.indexOf('*') + 1, a.length);
-	
-	
-	
 	
 	if (courseA < courseB && codeA.length == 4) {
 		return -1;
