@@ -11,9 +11,9 @@ body {
 	width: 100%;
 	left: 0;
 	top: 0;
-	z-index: 9;
+	z-index: 3;
 	background-color: #000000;
-	opacity: 0.5;
+	opacity: 0.0;
 	visibility: hidden;
 }
 
@@ -57,10 +57,9 @@ body {
 
 #importField {
 	position: fixed;
-	top: 35%;
-	left: 35%;
-	transform: translateX(-50%);
-	transform: translateY(-35%);
+	top: 30%;
+	left: 50%;
+  transform: translate(-50%, -50%);
 	resize: none;
 	z-index: 10;
 	visibility: hidden;
@@ -82,7 +81,7 @@ body {
 	width: 100%;
 	height: 28vh;
 	border: groove;
-	z-index: 3;
+	z-index: 2;
 	transform: translateY(2px);
 	box-sizing: border-box;
 }
@@ -92,16 +91,7 @@ body {
 	transform: scale(1.0, 1.0);
 	font-size: 20px;
 	width: 100%;
-}
-
-#courses {
-	//GRID
-	top: 10%;
-	position: absolute;
-	width: 80%;
-	background: #EAf0f6;
-	border: inset;
-	z-index: 4;
+	z-index: 2;
 }
 
 #searchList {
@@ -110,7 +100,7 @@ body {
 	border: 3px solid #003b6f;
 	background-color: #FFF;
 	font-size: 22px;
-	z-index: 4;
+	z-index: 6;
 	box-sizing: border-box;
 	width: 40%;
 }
@@ -120,7 +110,7 @@ body {
 	bottom: -3%;
 	height: 28px;
 	width: 100%;
-	z-index: 3;
+	z-index: 1;
 	background: rgba(176, 196, 222);
 	border: outset;
 	text-align: center;

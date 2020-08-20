@@ -7,4 +7,4 @@ Can be found at https://nathanrreed.github.io/guelph-planner/
 
 
 
-Currently only scales usablely to 480p
+Currently scales usablely to 480p

@@ -87,9 +87,10 @@ function updateTable() {
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
 			
-			//DRAG AND DROP COURSES		
+			//DRAG AND DROP COURSES
+			cell.ondragstart = function(){document.getElementById("overlay").style.visibility = "visible"; document.getElementById("overlay").style.opacity = 0.0};
 			cell.ondragover = function(){dropLocation = getLetter(y) + x};
-			cell.ondragend = function(){drop(cell)};
+			cell.ondragend = function(){var element = document.getElementById("overlay").style.visibility = "hidden"; drop(cell)};
 		}
 	}
 	
@@ -406,13 +407,7 @@ function removeRow(old, wipe){
 }
 
 function addCourse(el){
-	let array = document.getElementById("searchList").getElementsByTagName("ul");
-	document.getElementById('searchList').style.visibility = "hidden";
-	for (let i = 0; i < array.length; i++) {
-		array[i].style.display = "none"; //REMOVE?? DELETES THE SEARCH
-	}
-	document.getElementById("myInput").value = '';
-	document.getElementById("myInput").focus();
+	hideSearch();
 	let split = el.innerHTML.split('\u200C');
 	addCell(split[0].trim());
 }
@@ -438,6 +433,8 @@ function importVis() { //CLICK BUTTON
 	let element = document.getElementById("overlay");
 	let imp = document.getElementById("importField");
 	element.style.visibility = "visible";
+	element.style.zIndex = 5;
+	element.style.opacity = 0.5;
 	imp.style.visibility = "visible";
 	imp.removeAttribute("readonly");
 	imp.focus();
@@ -537,6 +534,24 @@ function addCell(id){
 	}
 }
 
+function hideSearch(){
+	let array = document.getElementById("searchList").getElementsByTagName("ul");
+	for (let i = 0; i < array.length; i++) {
+		array[i].style.display = "none"; //REMOVE?? DELETES THE SEARCH
+	}
+	
+	let element = document.getElementById("overlay");
+	element.style.visibility = "hidden";
+	element.style.opacity = 0.5;
+	element.style.zIndex = 3;
+	
+	document.getElementById('searchList').style.visibility = "hidden";
+	let input = document.getElementById("myInput");
+	//input.value = '';
+	input.style.zIndex = 2;
+	input.focus();
+}
+
 function removeCell(cell){
 	let x = cell.id.charAt(1);
 	let y = getNumber(cell.id.charAt(0));
@@ -546,10 +561,32 @@ function removeCell(cell){
 	}
 }
 
+function overlayProcessing(){
+	var imp = document.getElementById("importField");
+	
+	if(imp.style.visibility == "visible"){
+		var element = document.getElementById("overlay");
+		element.style.zIndex = 3;
+		element.style.visibility = "hidden";
+		imp.style.visibility = "hidden";
+		imp.setAttribute("readonly", "true");
+	}else if(document.getElementById('searchList').style.visibility == "visible"){
+		hideSearch();
+	}
+}
+
+
 function search() {
     let input, ul, a, txtValue;
     input = document.getElementById("myInput");
     let usrIn = input.value.toUpperCase();
+	
+	//MAKE OVERLAY!
+	let element = document.getElementById("overlay");
+	element.style.visibility = "visible";
+	element.style.opacity = 0.1;
+	element.style.zIndex = 5;
+	input.style.zIndex = 5;	
 	
     ul = document.getElementById("searchList");
 	let array = ul.getElementsByTagName("ul");

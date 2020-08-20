@@ -36,12 +36,11 @@
 		<script> //CLICK OFF
 			var element = document.getElementById("overlay");
 			element.onclick = function() {
-				var imp = document.getElementById("importField");
-				element.style.visibility = "hidden";
-				imp.style.visibility = "hidden";
-				imp.setAttribute("readonly", "true");
+				overlayProcessing();
 			}
-			   
+			element.ondragover = function(){
+				dropLocation = null;
+			}
 		</script>
 		<div class="centered search">
 			<h1>Guelph Planner</h1>
@@ -66,8 +65,8 @@
 			<input type="number" id="coursesPer" value="5" max="8" min="3" onChange="changePer()" style="width: 40px;">
 			<br>
 			<div class="disable-select">
-				<table width="100%" border="1" cellspacing="1" cellpadding="5">
-					<tbody id="tbody">
+				<table width="100%" border="1" cellspacing="1" cellpadding="6">
+					<tbody id="tbody" style="z-index: 4; position: relative;">
 						<tr id="sem">
 							<th scope="col" id="S1">&nbsp;Semester 1</th>
 							<th scope="col" id="S2">&nbsp;Semester 2</th>
