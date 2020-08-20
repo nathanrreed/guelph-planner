@@ -408,6 +408,7 @@ function removeRow(old, wipe){
 
 function addCourse(el){
 	hideSearch();
+	document.getElementById("myInput").value = '';
 	let split = el.innerHTML.split('\u200C');
 	addCell(split[0].trim());
 }
@@ -547,7 +548,6 @@ function hideSearch(){
 	
 	document.getElementById('searchList').style.visibility = "hidden";
 	let input = document.getElementById("myInput");
-	//input.value = '';
 	input.style.zIndex = 2;
 	input.focus();
 }
