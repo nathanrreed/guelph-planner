@@ -433,10 +433,11 @@ function recursive(string, index){
 		return true;
 	}else if(string.includes('(')){
 		//string = string.replace(')', '');
-		let c = req.split('(');
+		//let c = req.split('(');
+		return true;
 	}else if(string.includes('1 of')){
 		string = string.slice(5, string.length);
-		return oneOf(string.split(','));
+		return true;//oneOf(string.split(','));
 	}else if(string.includes('credits including')){
 		return true;
 	}else if(string.includes('credits in')){
@@ -448,7 +449,7 @@ function recursive(string, index){
 	}else if(string.includes(' or ')){
 		return true;
 	}else if(string.includes(',')){
-		return allOf(string.split(','));
+		return allOf(string.split(','), index);
 	}else{
 		return findInTable(string, index);
 	}
