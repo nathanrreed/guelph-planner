@@ -67,8 +67,8 @@ function updateTable() {
                 let obj = findList(dataTable[x][y].code);
 				if (obj != null && obj.required != null) {
 				    a.title = obj.required; //GET HIGHLIGHTS
-			     }
-                
+			     }			
+				
 				if(dataTable[x][y].passed == 1){ //CURRENTLY TAKING DENODED
 					cell.style.borderColor = '#003b6f';
 					cell.style.borderWidth = '2px';
@@ -84,7 +84,15 @@ function updateTable() {
 					cell.draggable = true;
 					cell.style.cursor = "grab"; 
 				}
-                
+				
+				if(x > findCurrSem() && !correctSem(x + 1, obj)){
+					cell.style.background = 'rgba(255, 50, 50, 0.3)';
+				}
+				
+                if(!prereqChecker(dataTable[x][y].code, x)){
+					cell.style.color = 'rgba(50, 50, 255, 0.7)';
+				}
+				
 			}else{
 				cell.appendChild(document.createTextNode('\xa0')); //MAKES AN EMPTY CELL
 			}
@@ -264,8 +272,8 @@ function importInfo() {
     currSem = getNextSem(new semester(semesters[semesters.length - 1].sem));
 	
     findMajor(); //REMOVE NEEDS TO BE CHECKED
-    updateTable();
 	updateSem();
+    updateTable();
 }
 
 function changeSem(sem){
@@ -286,21 +294,30 @@ function findCurrSem(){
 	 }
 }
 
-function findNextSem(c){
-	let num = 0, curr = c.sem;
-	
-	while(currSem.indexOf(curr) == -1 || num == 0){
-		if(curr.indexOf('F') != -1){
-			curr = 'W';
-			num++;
-		}else if(curr.indexOf('W') != -1){
-			curr = 'S';
-			num++;
-		}else if(curr.indexOf('S') != -1){
-			curr = 'F';
-			num++;
-		}
+function correctSem(num, obj){ //NEEDS PREQU CHECK!!!
+	if(document.getElementById('S' + num) == null){
+		if (confirm("Not enough space. Would you like to add another semester?")) {
+				addColumn();
+				updateSem();
+		  	}else {
+				return true; //FIX!! CREATES ERROR
+		  	}
 	}
+	let semTag = document.getElementById('S' + num).innerHTML.split(' ');
+	semTag = semTag[2].charAt(0);
+	if(obj != null && obj.sem.includes(semTag)){
+		return true;
+	}
+	
+	return false;
+}
+
+function findNextSem(c, current){
+	let num = 0, sem = current;
+	while(!correctSem(sem + num + 1, c) || !prereqChecker(c.code, current + num)){
+		num++;
+	}
+	
 	return num;
 }
 
@@ -320,25 +337,7 @@ function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 	if(str.indexOf(' ') != -1){
 		str = str.substring(0, str.indexOf(' '));
 	}
-	
-    //SET UP SEMESTER
 	let c = getSemester(sem);
-	
-	
-	//console.log(c + " " + str);
-	if(dataTable[c].length >= (5 + overload)){
-		//console.log(c);
-		c += findNextSem(findList(str)); //NEXT AVAILABLE SEM
-		//console.log(c);
-		while(c >= (8 + add)){
-			if (confirm("Not enough space. Would you like to add another semester?")) {
-				addColumn();
-		  	}else {
-				missing.push(findList(str));
-				return 0;
-		  	}
-		}
-	}
 	let p = 0;
 	
 	if(grade == "CURR"){
@@ -347,9 +346,20 @@ function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 		p = 2;
 	}else if(grade != "" && grade < 50){ //CHECK FOR FAILED COURSES
 		p = -1;
-	}
+	}else{
+		c += findNextSem(findList(str), c); //NEXT AVAILABLE SEM;
+	}	
 	
-	dataTable[c].push(new course(str, p));
+	dataTable[c][findEmptySpace(c)] = new course(str, p);
+}
+
+function findEmptySpace(x){
+	for (let y = 0; y < (5 + overload); y++) {
+		if(dataTable[x][y] == null){
+			return y;
+		}
+	}
+	return (5 + overload);
 }
 
 function nextSemester(sem){
@@ -372,6 +382,133 @@ function getSemester(sem) {
 	}
     nextSemester(sem);
 	return numSem;
+}
+
+function prereqChecker(c, index){
+	c = findList(c);
+	let req = c.required;
+	if(c.required != null){
+		return recursive(req, index);
+		
+		
+		/*let c = req.split('(');
+		console.log(c);
+		if(c.length > 1){
+			let s = 0;
+			c.forEach(i => {
+				i.replace(/[)]/ig, '').trim();
+				if(i == ""){
+					c.splice(s, 1);
+				}
+				s++;
+			});
+			
+			//return true;
+		}else{
+			c = req.split(',');
+			return allOf(c, index);
+		}*/
+		
+		
+		
+		/*if(c[0].includes('1 of')){
+			
+			c.slice(5, c.length);
+			
+			console.log(c);
+			c = req.split(',');
+			console.log(c);
+			return true;//oneOf(c, index);
+		}*/
+		
+		
+	}
+	return true;
+}
+
+function recursive(string, index){
+	let call = true;
+	//console.log(string);
+	if(string == ""){
+		return true;
+	}else if(string.includes('(')){
+		//string = string.replace(')', '');
+		let c = req.split('(');
+	}else if(string.includes('1 of')){
+		string = string.slice(5, string.length);
+		return oneOf(string.split(','));
+	}else if(string.includes('credits including')){
+		return true;
+	}else if(string.includes('credits in')){
+		return true;
+	}else if(string.includes(' 4U ')){
+		return true;
+	}else if(string.includes(' and ')){
+		return true;
+	}else if(string.includes(' or ')){
+		return true;
+	}else if(string.includes(',')){
+		return allOf(string.split(','));
+	}else{
+		return findInTable(string, index);
+	}
+	
+	return call;
+}
+
+function commaSplit(string){
+	string = string.split(',');
+	forEach(c => {
+		return recursive(c);
+	});
+}
+
+function allOf(c, index){
+	let count = 0;
+	c.forEach(p => {
+		if(prereqParser(p.trim().replace(/[.]/ig, ''), index)){
+			count++;
+		}
+	});
+	
+	if(count == c.length){
+		return true;
+	}
+	return false;
+}
+
+function oneOf(c, index){
+	c.forEach(p => {
+		if(prereqParser(p.trim().replace(/[.]/ig, ''), index)){
+			return true;
+		}
+	});
+	return false;
+}
+
+function prereqParser(c, index){
+	if(c.includes(' 4U ')){
+		return true;
+	}else if(c.includes('(')){
+		return true;
+	}else if(c.includes('[')){
+		return true;
+	}else{
+		return findInTable(c, index);
+	}
+	
+	return false;
+}
+
+function findInTable(check, index){
+	for (let x = 0; x < index; x++) {
+		for (let y = 0; y < (5 + overload); y++) {
+			if(dataTable[x][y] != null && dataTable[x][y].code == check){
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 function addColumn(){
@@ -425,8 +562,8 @@ function addCourse(el){
 
 function addMajor(){
 	findMajor();
-	missing = currMajor.filter(c => findMiss(c.code));
-	missing = missing.filter(c => findElect(c)); 
+	missing = currMajor.filter(c => findMiss(c.code)); //FIND WHAT ARE MISSING
+	missing = missing.filter(c => findElect(c)); //ADDS MISSING COURSES
 
 	updateTable();
 	updateSem();
@@ -512,7 +649,7 @@ function results(c){
 	let a = document.createElement('a');
 	ul.appendChild(a);
 	a.id = "#";
-	a.innerText = c.code + ' \u200C' + c.name;
+	a.innerText = c.code + ' \u200C' + c.name + ' (' + c.sem + ')';
 	a.onclick = function() {addCourse(this)};
 	
 	search.appendChild(ul);
