@@ -91,6 +91,8 @@ function updateTable() {
 				
                 if(!prereqChecker(dataTable[x][y].code, x)){
 					cell.style.color = 'rgba(50, 50, 255, 0.7)';
+				}else{
+					cell.style.color = 'rgba(0, 0, 0, 1)';
 				}
 				
 			}else{
@@ -98,7 +100,7 @@ function updateTable() {
 			}
 			
 			//DRAG AND DROP COURSES
-			cell.ondragstart = function(){document.getElementById("overlay").style.visibility = "visible"; document.getElementById("overlay").style.opacity = 0.0};
+			cell.ondragstart = function(){let overlay = document.getElementById("overlay"); overlay.style.visibility = "visible"; overlay.style.opacity = 0.0; overlay.style.zIndex = 3};
 			cell.ondragover = function(){dropLocation = getLetter(y) + x};
 			cell.ondragend = function(){var element = document.getElementById("overlay").style.visibility = "hidden"; drop(cell)};
 		}
@@ -111,6 +113,8 @@ function drop(cell) {
 	if(dropLocation != null){
 		cell.draggable = false;
 		cell.style.cursor = "auto"; 
+		cell.style.color = 'rgba(0, 0, 0, 1)';
+		
 		let old = document.getElementById(cell);
 		
 		let nx = dropLocation.charAt(1);
@@ -139,6 +143,7 @@ function drop(cell) {
 		}else{
 			dataTable[nx][ny].passed = 1;
 		}
+		
 		updateTable();
 	}
 }
@@ -315,6 +320,7 @@ function correctSem(num, obj){ //NEEDS PREQU CHECK!!!
 function findNextSem(c, current){
 	let num = 0, sem = current;
 	while(!correctSem(sem + num + 1, c) || !prereqChecker(c.code, current + num)){
+		
 		num++;
 	}
 	
@@ -337,17 +343,18 @@ function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 	if(str.indexOf(' ') != -1){
 		str = str.substring(0, str.indexOf(' '));
 	}
+	
 	let c = getSemester(sem);
 	let p = 0;
 	
 	if(grade == "CURR"){
 		p = 1;
-	}else if(grade != "" && grade >= 50){ //CHECK FOR FAILED COURSES
+	}else if(grade != "" && grade >= 50){ //CHECK FOR PASSED COURSES
 		p = 2;
 	}else if(grade != "" && grade < 50){ //CHECK FOR FAILED COURSES
 		p = -1;
 	}else{
-		c += findNextSem(findList(str), c); //NEXT AVAILABLE SEM;
+		c += findNextSem(findList(str), c); //NEXT AVAILABLE SEM
 	}	
 	
 	dataTable[c][findEmptySpace(c)] = new course(str, p);
@@ -388,73 +395,89 @@ function prereqChecker(c, index){
 	c = findList(c);
 	let req = c.required;
 	if(c.required != null){
-		return recursive(req, index);
-		
-		
-		/*let c = req.split('(');
-		console.log(c);
-		if(c.length > 1){
-			let s = 0;
-			c.forEach(i => {
-				i.replace(/[)]/ig, '').trim();
-				if(i == ""){
-					c.splice(s, 1);
-				}
-				s++;
-			});
-			
-			//return true;
-		}else{
-			c = req.split(',');
-			return allOf(c, index);
-		}*/
-		
-		
-		
-		/*if(c[0].includes('1 of')){
-			
-			c.slice(5, c.length);
-			
-			console.log(c);
-			c = req.split(',');
-			console.log(c);
-			return true;//oneOf(c, index);
-		}*/
-		
-		
+		return recursive(req, index);		
 	}
 	return true;
 }
 
+function firstOccurrence(string){
+	let indexof = 1000000000000;
+	let choice = -1;
+	
+	if(string.indexOf('[') != -1 && string.indexOf('[') < indexof){
+		indexof = string.indexOf('[');
+		choice = 0;
+	}
+	if(string.indexOf('(') != -1 && string.indexOf('(') < indexof){
+		indexof = string.indexOf('(');
+		choice = 1;
+	}
+	if(string.indexOf('1 of') != -1 && string.indexOf('1 of') < indexof){
+		indexof = string.indexOf('1 of');
+		choice = 2;
+	}
+	if(string.indexOf(' or ') != -1 && string.indexOf(' or ') < indexof){
+		indexof = string.indexOf(' or ');
+		choice = 3;
+	}
+	if(string.indexOf(' and ') != -1 && string.indexOf(' and ') < indexof){
+		indexof = string.indexOf(' and ');
+		choice = 4;
+	}
+	
+	return choice;
+}
+
 function recursive(string, index){
-	let call = true;
-	//console.log(string);
+	let choice = firstOccurrence(string);
 	if(string == ""){
 		return true;
-	}else if(string.includes('(')){
-		//string = string.replace(')', '');
-		//let c = req.split('(');
+	}else if(string.includes(' 4U ')){ //ASSUMES YOU DID HIGHSCHOOL RIGHT
 		return true;
-	}else if(string.includes('1 of')){
-		string = string.slice(5, string.length);
-		return true;//oneOf(string.split(','));
+	}else if(choice == 0){ //[
+		let c = string.split(',');
+		let r = true;
+		for(let i = 0; i < c.length; i++){
+			c[i] = c[i].replace('[', '').trim();
+			c[i] = c[i].replace(']', '').trim();
+			r = r && recursive(c[i], index);
+		}
+		return r;
+	}else if(choice == 1){ //(
+		let c = string.split('(');
+		let r = true;
+		for(let i = 0; i < c.length; i++){
+			c[i] = c[i].replace('),', '').trim();
+			c[i] = c[i].replace(')', '').trim();
+			r = r && recursive(c[i], index);
+		}
+		return r;
+	}else if(choice == 2){
+		string = string.slice(5, string.length).trim();
+		return oneOf(string.split(','), index);
 	}else if(string.includes('credits including')){
 		return true;
 	}else if(string.includes('credits in')){
 		return true;
-	}else if(string.includes(' 4U ')){
-		return true;
-	}else if(string.includes(' and ')){
-		return true;
-	}else if(string.includes(' or ')){
-		return true;
+	}else if(choice == 3){
+		let c = string.split(' or ');
+		let r = false;
+		c.forEach(s => {
+			r = r || recursive(s, index);
+		});
+		return r;
+	}else if(choice == 4){
+		let c = string.split(' and ');
+		let r = true;
+		c.forEach(s => {
+			r = r && recursive(s, index);
+		});
+		return r;
 	}else if(string.includes(',')){
 		return allOf(string.split(','), index);
 	}else{
 		return findInTable(string, index);
 	}
-	
-	return call;
 }
 
 function commaSplit(string){
@@ -467,8 +490,10 @@ function commaSplit(string){
 function allOf(c, index){
 	let count = 0;
 	c.forEach(p => {
-		if(prereqParser(p.trim().replace(/[.]/ig, ''), index)){
+		if( findInTable(p.trim().replace(/[.]/ig, ''), index)){
 			count++;
+		}else if(p == ""){
+			count ++;
 		}
 	});
 	
@@ -479,26 +504,11 @@ function allOf(c, index){
 }
 
 function oneOf(c, index){
-	c.forEach(p => {
-		if(prereqParser(p.trim().replace(/[.]/ig, ''), index)){
-			return true;
-		}
-	});
-	return false;
-}
-
-function prereqParser(c, index){
-	if(c.includes(' 4U ')){
-		return true;
-	}else if(c.includes('(')){
-		return true;
-	}else if(c.includes('[')){
-		return true;
-	}else{
-		return findInTable(c, index);
-	}
-	
-	return false;
+	let r = false;
+		c.forEach(s => {
+			r = r ||  findInTable(s.replace(/[.]/ig, '').trim(), index);
+		});
+	return r;
 }
 
 function findInTable(check, index){
