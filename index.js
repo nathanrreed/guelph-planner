@@ -110,20 +110,19 @@ function updateTable() {
 }
 
 function drop(cell) {
-	if(dropLocation != null){
-		cell.draggable = false;
-		cell.style.cursor = "auto"; 
-		cell.style.color = 'rgba(0, 0, 0, 1)';
-		
+	if(dropLocation != null){	
 		let old = document.getElementById(cell);
 		
 		let nx = dropLocation.charAt(1);
 		let ny = getNumber(dropLocation.charAt(0));
 		
-		if(dataTable[nx][ny] != null && !(dataTable[nx][ny].passed == 0 || dataTable[nx][ny].passed == 1)){ //Cant reorder taken classes
+		if((dataTable[nx][ny] != null && !(dataTable[nx][ny].passed == 0 || dataTable[nx][ny].passed == 1)) || nx < findCurrSem()){ //Cant reorder taken classes
 			return;
 		}
 		
+		cell.draggable = false;
+		cell.style.cursor = "auto"; 
+		cell.style.color = 'rgba(0, 0, 0, 1)';
 		dropLocation = null;
 		
 		
@@ -299,7 +298,7 @@ function findCurrSem(){
 	 }
 }
 
-function correctSem(num, obj){ //NEEDS PREQU CHECK!!!
+function correctSem(num, obj){
 	if(document.getElementById('S' + num) == null){
 		if (confirm("Not enough space. Would you like to add another semester?")) {
 				addColumn();
@@ -308,6 +307,7 @@ function correctSem(num, obj){ //NEEDS PREQU CHECK!!!
 				return true; //FIX!! CREATES ERROR
 		  	}
 	}
+	
 	let semTag = document.getElementById('S' + num).innerHTML.split(' ');
 	semTag = semTag[2].charAt(0);
 	if(obj != null && obj.sem.includes(semTag)){
@@ -320,7 +320,6 @@ function correctSem(num, obj){ //NEEDS PREQU CHECK!!!
 function findNextSem(c, current){
 	let num = 0, sem = current;
 	while(!correctSem(sem + num + 1, c) || !prereqChecker(c.code, current + num)){
-		
 		num++;
 	}
 	
@@ -456,9 +455,11 @@ function recursive(string, index){
 		string = string.slice(5, string.length).trim();
 		return oneOf(string.split(','), index);
 	}else if(string.includes('credits including')){
-		return true;
+		return false;
 	}else if(string.includes('credits in')){
-		return true;
+		return false;
+	}else if(string.includes('credits')){
+		return false;
 	}else if(choice == 3){
 		let c = string.split(' or ');
 		let r = false;
