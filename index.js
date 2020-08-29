@@ -64,10 +64,7 @@ function updateTable() {
 					cell.style.cursor = "not-allowed"; 
 				}
                 
-                let obj = findList(dataTable[x][y].code);
-				if (obj != null && obj.required != null) {
-				    a.title = obj.required; //GET HIGHLIGHTS
-			     }			
+                let obj = findList(dataTable[x][y].code);		
 				
 				if(dataTable[x][y].passed == 1){ //CURRENTLY TAKING DENODED
 					cell.style.borderColor = '#003b6f';
@@ -86,11 +83,12 @@ function updateTable() {
 				}
 				
 				if(x > findCurrSem() && !correctSem(x + 1, obj)){
-					cell.style.background = 'rgba(255, 50, 50, 0.3)';
+					cell.style.background = 'rgba(255, 50, 50, 0.2)';
 				}
 				
                 if(!prereqChecker(dataTable[x][y].code, x)){
-					cell.style.color = 'rgba(50, 50, 255, 0.7)';
+					cell.style.color = 'rgba(94, 40, 138, 1)';
+					cell.title = obj.required; //MAKE SPECIFIC
 				}else{
 					cell.style.color = 'rgba(0, 0, 0, 1)';
 				}
@@ -301,11 +299,11 @@ function findCurrSem(){
 function correctSem(num, obj){
 	if(document.getElementById('S' + num) == null){
 		if (confirm("Not enough space. Would you like to add another semester?")) {
-				addColumn();
-				updateSem();
-		  	}else {
-				return true; //FIX!! CREATES ERROR
-		  	}
+			addColumn();
+			updateSem();
+		}else {
+			return true; //FIX!! CREATES ERROR
+		}
 	}
 	
 	let semTag = document.getElementById('S' + num).innerHTML.split(' ');
@@ -354,7 +352,11 @@ function getInfo(sem, str, grade) { //ADDS A COURSE TO THE TABLE
 		p = -1;
 	}else{
 		c += findNextSem(findList(str), c); //NEXT AVAILABLE SEM
-	}	
+	}
+	
+	if(p == 0 && c == findCurrSem()){
+		p = 1;
+	}
 	
 	dataTable[c][findEmptySpace(c)] = new course(str, p);
 }
@@ -399,41 +401,65 @@ function prereqChecker(c, index){
 	return true;
 }
 
+function creditCounter(index){
+	let count = 0;
+	let list
+	 for (let x = 0; x < index; x++) {
+		for (let y = 0; y < (5 + overload); y++) {
+            if(dataTable[x] != null && dataTable[x][y] != null && dataTable[x][y].passed != -1){
+                count += parseFloat(findList(dataTable[x][y].code).credit);
+            }
+        }
+    }
+	return count;
+}
+
 function firstOccurrence(string){
 	let indexof = 1000000000000;
 	let choice = -1;
 	
 	if(string.indexOf('[') != -1 && string.indexOf('[') < indexof){
 		indexof = string.indexOf('[');
-		choice = 0;
+		choice = 10;
 	}
 	if(string.indexOf('(') != -1 && string.indexOf('(') < indexof){
 		indexof = string.indexOf('(');
-		choice = 1;
+		choice = 11;
 	}
-	if(string.indexOf('1 of') != -1 && string.indexOf('1 of') < indexof){
-		indexof = string.indexOf('1 of');
-		choice = 2;
+	
+	for(let i = 1; i < 10; i++){
+		if(string.indexOf(i + ' of') != -1 && string.indexOf('1 of') < indexof){
+			indexof = string.indexOf('1 of');
+			choice = i;
+		}
 	}
+	
 	if(string.indexOf(' or ') != -1 && string.indexOf(' or ') < indexof){
 		indexof = string.indexOf(' or ');
-		choice = 3;
+		choice = 13;
 	}
 	if(string.indexOf(' and ') != -1 && string.indexOf(' and ') < indexof){
 		indexof = string.indexOf(' and ');
-		choice = 4;
+		choice = 14;
 	}
 	
 	return choice;
 }
 
 function recursive(string, index){
+	console.log(string);
 	let choice = firstOccurrence(string);
-	if(string == ""){
+	if(string == "" || !(string.includes('*'))){
 		return true;
-	}else if(string.includes(' 4U ')){ //ASSUMES YOU DID HIGHSCHOOL RIGHT
+	}else if(string.includes(' 4U ') || string.startsWith('4U ')){ //ASSUMES YOU DID HIGHSCHOOL RIGHT
 		return true;
-	}else if(choice == 0){ //[
+	}else if(string.includes('credits including')){
+		return recursive(string.substring(string.indexOf('including') + 9, string.length).trim(), index) && creditCounter(index) > parseFloat(string.substring(0, 4));
+	}else if(string.includes('credits in')){ //NEEDS WORK!!!
+		return false;
+	}else if(string.includes('credits')){
+		return creditCounter(index) > parseFloat(string.substring(0, 4));
+	}else if(choice == 10){ //[
 		let c = string.split(',');
 		let r = true;
 		for(let i = 0; i < c.length; i++){
@@ -442,7 +468,7 @@ function recursive(string, index){
 			r = r && recursive(c[i], index);
 		}
 		return r;
-	}else if(choice == 1){ //(
+	}else if(choice == 11){ //(
 		let c = string.split('(');
 		let r = true;
 		for(let i = 0; i < c.length; i++){
@@ -451,23 +477,17 @@ function recursive(string, index){
 			r = r && recursive(c[i], index);
 		}
 		return r;
-	}else if(choice == 2){
+	}else if(choice > 0 && choice < 10){
 		string = string.slice(5, string.length).trim();
-		return oneOf(string.split(','), index);
-	}else if(string.includes('credits including')){
-		return false;
-	}else if(string.includes('credits in')){
-		return false;
-	}else if(string.includes('credits')){
-		return false;
-	}else if(choice == 3){
+		return numOf(string.split(','), index, choice);
+	}else if(choice == 13){
 		let c = string.split(' or ');
 		let r = false;
 		c.forEach(s => {
 			r = r || recursive(s, index);
 		});
 		return r;
-	}else if(choice == 4){
+	}else if(choice == 14){
 		let c = string.split(' and ');
 		let r = true;
 		c.forEach(s => {
@@ -504,12 +524,20 @@ function allOf(c, index){
 	return false;
 }
 
-function oneOf(c, index){
-	let r = false;
-		c.forEach(s => {
-			r = r ||  findInTable(s.replace(/[.]/ig, '').trim(), index);
-		});
-	return r;
+function numOf(c, index, num){
+	let count = 0;
+	c.forEach(p => {
+		if( findInTable(p.trim().replace(/[.]/ig, ''), index)){
+			count++;
+		}else if(p == ""){
+			count ++;
+		}
+	});
+	
+	if(count == num){
+		return true;
+	}
+	return false;
 }
 
 function findInTable(check, index){
@@ -734,8 +762,7 @@ function overlayProcessing(){
 	}
 }
 
-
-function search() {
+function search(event) {
     let input, ul, a, txtValue;
     input = document.getElementById("myInput");
     let usrIn = input.value.toUpperCase();
@@ -748,6 +775,7 @@ function search() {
 	input.style.zIndex = 5;	
 	
     ul = document.getElementById("searchList");
+	ul.style.display = "";
 	let array = ul.getElementsByTagName("ul");
 	
 	for (let i = 0; i < array.length; i++) {
@@ -758,6 +786,7 @@ function search() {
 	let countArray = Array.prototype.slice.call(array);
 	countArray.sort((a, b) => sortSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
+	
 	let num = 0;
 	for (let i = 0; i < countArray.length; i++) {
 		if (num < 8 && narrowSearch(countArray[i], usrIn, true)) {
@@ -766,6 +795,11 @@ function search() {
 		} else {
 			countArray[i].style.display = "none";
 		}
+	}
+	
+	if (event.keyCode === 13 && num == 1) {
+		addCourse(countArray[0].firstChild);
+		ul.style.display = "none";
 	}
 	
 	document.getElementById('searchList').style.visibility = "visible";
@@ -998,4 +1032,34 @@ function checkRowEmpty(row){
 	}
 	
 	return true;
+}
+
+function exportToCSV(){
+	let csv = "data:text/csv;charset=utf-8,";
+	
+	for(let i = 1; i <= (8 + add); i++){
+		csv += "Semester " + i + ",";
+	}
+	csv += "\n";
+	
+	for (let y = 0; y < (5 + overload); y++) {
+		for (let x = 0; x < (8 + add); x++) {
+		
+			if(dataTable[x][y] != null && dataTable[x][y].code != null){
+				csv += dataTable[x][y].code + ",";
+			}else{
+				csv += ",";
+			}
+		}
+		csv += "\n";
+	}
+	
+	console.log(csv);
+	var dLink = document.createElement("a");
+	dLink.href = encodeURI(csv);
+	dLink.download = "schedule.csv";
+
+	document.body.appendChild(dLink);
+	dLink.click();
+	document.body.removeChild(dLink);
 }

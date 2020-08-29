@@ -43,8 +43,8 @@
 			}
 		</script>
 		<div class="centered search">
-			<h1>Guelph Planner V0.4</h1>
-			<input type="text" id="myInput" onkeyup="search()" placeholder="Search for courses" title="Type in a course name">
+			<h1>Guelph Planner V0.5</h1>
+			<input type="text" id="myInput" onclick="search(event)" onkeyup="search(event)" placeholder="Search for courses" title="Type in a course name">
 			<ul id="searchList"></ul>
 		</div>
 		<div class="centered" style="padding-top: 10px;">
@@ -80,6 +80,7 @@
 					</tbody>
 				</table>
 			</div>
+			<input type = "button" onClick="exportToCSV()"  value="Export">
 			<table width="100%" border="0" cellspacing="0" cellpadding="1">
 				<tbody>
 					<tr>
