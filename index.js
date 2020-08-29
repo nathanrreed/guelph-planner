@@ -8,6 +8,10 @@ var currSem = 'aa', numSem = 0, add = 0, overload = 0;
 var remove = false;
 var dropLocation = null;
 
+var searchSelection = 99;
+var searchNum = 7;
+var countArray = [];
+
 var startSem = new semester('F20'); //NEEDS TO UPDATE AUTOMATICALLY
 const current = '2020-2021' //FIX!
 
@@ -763,7 +767,29 @@ function overlayProcessing(){
 }
 
 function search(event) {
-    let input, ul, a, txtValue;
+	if ((event.keyCode > 45 && event.keyCode < 91) || (event.keyCode > 95 && event.keyCode < 106) || event.keyCode == 8 || event.keyCode == 32){
+		deselectInSearch(countArray, searchSelection);		
+		createSearch();
+		searchSelection = 0;
+		selectInSearch(countArray);
+	}else if(event.keyCode === 40 && (searchSelection < searchNum || searchSelection == 99)){ //DOWN ARROW
+		searchSelection = (searchSelection == 99 ? 0 : searchSelection + 1);
+		selectInSearch(countArray);
+		deselectInSearch(countArray, searchSelection - 1);
+	}else if(event.keyCode === 38 && (searchSelection > 0 || searchSelection == 99)){ //DOWN ARROW
+		searchSelection = (searchSelection == 99 ? 0 : searchSelection - 1);
+		selectInSearch(countArray);
+		deselectInSearch(countArray, searchSelection + 1);
+	}else if (event.keyCode === 13 && (searchNum == 1 || searchSelection != 99)) { //ENTER
+		addCourse(countArray[(searchSelection == 99 ? 0 : searchSelection)].firstChild);
+		//ul.style.display = "none";
+		deselectInSearch(countArray, searchSelection);
+		searchSelection = 99;
+	}
+}
+
+function createSearch(){
+	let input, ul, a, txtValue;
     input = document.getElementById("myInput");
     let usrIn = input.value.toUpperCase();
 	
@@ -783,7 +809,8 @@ function search(event) {
 		array[i].onmouseover = function(){changeView(split[0])};
 	}
 	
-	let countArray = Array.prototype.slice.call(array);
+	countArray = Array.prototype.slice.call(array);
+	//UPDATE SEARCH ORDER
 	countArray.sort((a, b) => sortSearch(a.getElementsByTagName("a")[0], b.getElementsByTagName("a")[0], usrIn));
 	countArray.reverse();
 	
@@ -796,13 +823,20 @@ function search(event) {
 			countArray[i].style.display = "none";
 		}
 	}
-	
-	if (event.keyCode === 13 && num == 1) {
-		addCourse(countArray[0].firstChild);
-		ul.style.display = "none";
-	}
-	
+	searchNum = num - 1;
 	document.getElementById('searchList').style.visibility = "visible";
+}
+
+function selectInSearch(countArray){
+	countArray[searchSelection].style.border = "thin solid #000000";
+	countArray[searchSelection].style.backgroundColor = "#dcfcf3";
+}
+
+function deselectInSearch(countArray, num){
+	if(searchSelection != 99 && num >= 0){
+		countArray[num].style.border = "";
+		countArray[num].style.backgroundColor = "";
+	}
 }
 
 function changeView(id){
